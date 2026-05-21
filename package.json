@@ -1,0 +1,15 @@
+{
+  "name": "anismoke",
+  "version": "1.0.0",
+  "description": "AniSmoke - Premium Anime Streaming Platform",
+  "main": "generate-config.js",
+  "scripts": {
+    "build": "node generate-config.js",
+    "dev": "npx servor . 5500 --reload"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="neon">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AniSmoke — Discover and watch anime. Your personal anime discovery hub.">
+  <meta name="theme-color" content="#131313">
+  <meta name="referrer" content="no-referrer">
+  <meta property="og:title" content="AniSmoke — Anime Discovery Hub">
+  <meta property="og:description" content="AniSmoke — Discover and watch anime. Your personal anime discovery hub.">
+  <meta property="og:image" content="assets/logo.png">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:;">
+  <title>AniSmoke — Anime Discovery Hub</title>
+  <link rel="icon" type="image/png" href="assets/favicon-32.png">
+  <link rel="manifest" href="site.webmanifest">
+  
+
+  
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    /* ── Page-specific ──────────────────────────────── */
+    .page-wrap { padding-top: var(--header-height); }
+
+    /* ── Hero skeleton loading state ── */
+    .as-hero.is-loading .as-hero-content { pointer-events: none; }
+
+    #heroSkeleton {
+      position: relative;
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity 0.25s ease;
+      margin-bottom: 12px;
+    }
+    #heroSkeleton.fade-out { opacity: 0; }
+
+    .hero-sk-label { width: 160px; height: 13px; margin-bottom: 20px; border-radius: 2px; }
+    .hero-sk-title1 { width: 55%; height: 64px; margin-bottom: 10px; border-radius: 2px; }
+    .hero-sk-title2 { width: 75%; height: 64px; margin-bottom: 18px; border-radius: 2px; }
+    .hero-sk-desc  { width: 90%; height: 12px; margin-bottom: 8px; border-radius: 2px; }
+    .hero-sk-desc2 { width: 70%; height: 12px; margin-bottom: 8px; border-radius: 2px; }
+    .hero-sk-desc3 { width: 80%; height: 12px; margin-bottom: 20px; border-radius: 2px; }
+    .hero-sk-meta  { display: flex; gap: 16px; margin-bottom: 20px; }
+    .hero-sk-meta span { width: 64px; height: 13px; border-radius: 2px; }
+    .hero-sk-btns  { display: flex; gap: 12px; }
+    .hero-sk-btn   { width: 140px; height: 44px; border-radius: 4px; }
+    .hero-sk-btn2  { width: 120px; height: 44px; border-radius: 4px; }
+
+    /* Filter chips row */
+    .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .filter-row::-webkit-scrollbar { display: none; }
+
+    /* Top 10 sidebar */
+    .sidebar-widget {
+      background: var(--bg-card); border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .widget-header {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      font-family: var(--font-headline);
+      font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .widget-header::before { content:''; width:4px; height:20px; background: var(--primary); transform: skewX(-15deg); }
+    .rank-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 16px; cursor: pointer; transition: background var(--transition);
+      border-bottom: 1px solid var(--border);
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-item:hover { background: rgba(188,19,254,0.08); }
+    .rank-num {
+      font-size: 20px; font-weight: 900; font-family: var(--font-headline);
+      width: 28px; text-align: right; flex-shrink: 0; color: var(--bg-elevated);
+      -webkit-text-stroke: 1px var(--border-hover);
+    }
+    .rank-num.gold   { color: #f59e0b; -webkit-text-stroke: 0; text-shadow: 0 0 8px rgba(245,158,11,0.5); }
+    .rank-num.silver { color: #94a3b8; -webkit-text-stroke: 0; }
+    .rank-num.bronze { color: #cd7c3c; -webkit-text-stroke: 0; }
+    .rank-thumb { width: 46px; height: 64px; object-fit: cover; flex-shrink: 0; }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-title { font-family: var(--font-headline); font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; }
+    .rank-sub   { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .rank-score { font-family: var(--font-headline); font-size: 12px; font-weight: 700; color: var(--cyan); flex-shrink: 0; }
+
+    /* Two-column layout */
+    .content-grid { display: grid; grid-template-columns: 1fr 300px; gap: 32px; }
+    .content-left { min-width: 0; }
+    
+    @media (max-width: 1100px) { .content-grid { grid-template-columns: 1fr; } .sidebar-hide { display: none; } }
+
+    /* ── Continue Watching shelf ── */
+    #continueWatchingSection {
+      display: none;
+      animation: cwSlideIn 0.45s var(--ease-hydraulic) both;
+    }
+    #continueWatchingSection.visible { display: block; }
+    @keyframes cwSlideIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .cw-scroll {
+      display: flex; gap: 16px;
+      overflow-x: auto; padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .cw-scroll::-webkit-scrollbar { display: none; }
+
+    .cw-card {
+      flex: 0 0 280px; position: relative;
+      background: var(--bg-card); border: 1px solid var(--border);
+      overflow: hidden; cursor: pointer;
+      transition: border-color 0.25s var(--ease-hydraulic),
+                  box-shadow 0.25s var(--ease-hydraulic),
+                  transform 0.25s var(--ease-hydraulic);
+    }
+    .cw-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+      transform: translateY(-4px);
+    }
+    .cw-card-thumb {
+      width: 100%; aspect-ratio: 16/9;
+      overflow: hidden; position: relative;
+      background: var(--bg-tertiary);
+    }
+    .cw-card-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s var(--ease-hydraulic);
+    }
+    .cw-card:hover .cw-card-thumb img { transform: scale(1.06); }
+
+    /* Gradient overlay on image */
+    .cw-card-thumb::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.3) 50%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* Play button */
+    .cw-play {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      width: 44px; height: 44px;
+      background: rgba(188,19,254,0.85); border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; cursor: pointer; z-index: 3;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    }
+    .cw-card:hover .cw-play { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* Episode badge */
+    .cw-ep-badge {
+      position: absolute; top: 8px; right: 8px; z-index: 3;
+      font-family: var(--font-headline); font-size: 9px; font-weight: 900;
+      color: #fff; background: rgba(0,0,0,0.7); padding: 3px 8px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      border-left: 2px solid var(--cyan);
+    }
+
+    .cw-card-body {
+      padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .cw-card-title {
+      font-family: var(--font-headline); font-size: 12px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cw-card-meta {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .cw-card-ep {
+      font-family: var(--font-headline); font-size: 10px; font-weight: 800;
+      color: var(--cyan); text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .cw-card-pct {
+      font-family: var(--font-headline); font-size: 9px; font-weight: 700;
+      color: var(--text-muted); letter-spacing: 0.04em;
+    }
+    .cw-progress {
+      height: 4px; background: var(--bg-tertiary); position: relative;
+      mask-image: repeating-linear-gradient(to right, black 0, black calc(10% - 2px), transparent calc(10% - 2px), transparent 10%);
+      -webkit-mask-image: repeating-linear-gradient(to right, black 0, black calc(10% - 2px), transparent calc(10% - 2px), transparent 10%);
+    }
+    .cw-progress-bar {
+      height: 100%; background: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+      transition: width 0.4s var(--ease-hydraulic);
+    }
+
+    @media (max-width: 600px) {
+      .cw-card { flex: 0 0 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR NAVIGATION ═══════════════ -->
+<aside class="as-sidebar">
+  <a href="index.html" class="as-sidebar-logo" aria-label="AniSmoke Home">
+    <img src="assets/logo.png" alt="AniSmoke">
+    <span>AniSmoke</span>
+  </a>
+  <nav class="as-sidebar-nav" role="navigation" aria-label="Main Navigation">
+    <a href="index.html" class="as-sidebar-link active">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="browse.html" class="as-sidebar-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>Browse</span>
+    </a>
+    <a href="watchlist.html" class="as-sidebar-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+      <span>Watchlist</span>
+    </a>
+    <a href="browse.html?filter=schedule" class="as-sidebar-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+      <span>Schedule</span>
+    </a>
+  </nav>
+  <div class="as-sidebar-pin" title="Pin sidebar open" role="button" aria-label="Pin sidebar" tabindex="0">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+    <span>Pin Sidebar</span>
+  </div>
+  <div class="as-sidebar-footer">
+    <div class="theme-wrap" style="position:relative;width:100%">
+      <button class="as-sidebar-link theme-btn" data-action="theme-toggle" style="width:100%;border:none;background:none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <span>Toggle Theme</span>
+      </button>
+      <div class="theme-panel" id="themePanel"></div>
+    </div>
+    <button class="as-sidebar-link" data-auth="guest" data-action="open-auth" style="width:100%;border:none;background:none;cursor:pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Sign In</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<header class="as-header as-topbar">
+  <div class="container as-header-inner">
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" id="menuToggle" aria-label="Toggle Menu" role="button" tabindex="0">
+      <span></span><span></span><span></span>
+    </div>
+
+    <!-- Search -->
+    <div class="as-search" id="searchWrap" style="max-width: 400px; margin: 0 auto 0 0;">
+      <span class="as-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <input id="headerSearchInput" type="text" placeholder="Search database..." autocomplete="off">
+      <span class="as-search-clear" id="searchClear" role="button" aria-label="Clear search" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+      <div class="as-search-dropdown" id="searchDropdown"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="as-header-actions">
+      <!-- Guest -->
+      <button class="btn btn-ghost btn-sm" data-auth="guest" data-action="open-auth">Sign In</button>
+
+      <!-- Logged in -->
+      <div style="position:relative;display:none" data-auth="user">
+        <div class="user-menu-btn" id="userMenuBtn" title="Your account" role="button" aria-label="User menu" tabindex="0">
+          <span data-auth="avatar">?</span>
+          <span class="online-dot"></span>
+        </div>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name"  data-auth="name">User</div>
+            <div class="user-dropdown-email" data-auth="email"></div>
+          </div>
+          <a href="watchlist.html" class="user-dropdown-item">My Watchlist</a>
+          <div class="user-dropdown-divider"></div>
+          <div class="user-dropdown-item danger" id="logoutBtn">Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════ MOBILE MENU ═══════════════ -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-section" style="padding-top: 24px;">
+    <div class="mobile-menu-label">Navigation</div>
+    <a href="index.html" class="mobile-menu-link active">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      Home
+    </a>
+    <a href="browse.html" class="mobile-menu-link">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
+      Browse
+    </a>
+    <a href="watchlist.html" class="mobile-menu-link">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span>
+      Watchlist
+    </a>
+    <a href="browse.html?filter=schedule" class="mobile-menu-link">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg></span>
+      Schedule
+    </a>
+  </div>
+  <div class="mobile-menu-section">
+    <div class="mobile-menu-label">Settings</div>
+    <div class="mobile-menu-link" data-action="theme-toggle">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+      Toggle Theme
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HERO SPOTLIGHT ═══════════════ -->
+<section class="as-hero is-loading" id="hero">
+  <div class="as-hero-bg" id="heroBg"></div>
+  <div class="as-hero-overlay"></div>
+  
+  <div class="container as-hero-inner">
+    <div class="as-hero-content">
+      <div class="as-hero-label">FEATURED PREMIERE</div>
+
+      <!-- ── Hero skeleton overlay (removed when data loads) ── -->
+      <div id="heroSkeleton">
+        <div class="skeleton hero-sk-label"></div>
+        <div class="skeleton hero-sk-title1"></div>
+        <div class="skeleton hero-sk-title2"></div>
+        <div class="skeleton hero-sk-desc"></div>
+        <div class="skeleton hero-sk-desc2"></div>
+        <div class="skeleton hero-sk-desc3"></div>
+        <div class="hero-sk-meta">
+          <span class="skeleton"></span>
+          <span class="skeleton"></span>
+          <span class="skeleton"></span>
+        </div>
+        <div class="hero-sk-btns">
+          <span class="skeleton hero-sk-btn"></span>
+          <span class="skeleton hero-sk-btn2"></span>
+        </div>
+      </div>
+
+      <h1 class="as-hero-title" id="heroTitle"></h1>
+      <p class="as-hero-desc" id="heroDesc"></p>
+      
+      <div class="as-hero-meta" id="heroMeta"></div>
+      
+      <div class="as-hero-actions">
+        <button class="btn btn-primary btn-lg" id="heroWatchBtn">WATCH NOW ▶</button>
+        <button class="btn btn-secondary btn-lg" id="heroInfoBtn">+ WATCHLIST</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="as-hero-dots" id="heroDots"></div>
+  
+  <!-- Score Ring Overlay (HUD Style) -->
+  <div class="as-hero-score-hud" id="heroScoreRing" style="display:none">
+    <div class="hud-score-ring">
+      <svg viewBox="0 0 36 36" class="circular-chart">
+        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        <path class="circle" id="scoreCircle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+      </svg>
+      <div class="hud-score-val" id="scoreVal">0.0</div>
+    </div>
+    <div class="hud-score-label">MATCH RATING</div>
+  </div>
+</section>
+
+<div class="page-wrap">
+
+<!-- ═══════════════ ADS ═══════════════ -->
+
+
+<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+<main class="container">
+
+  <!-- ── Continue Watching (auth-gated) ── -->
+  <section class="section-sm" id="continueWatchingSection">
+    <div class="section-header">
+      <h2 class="section-title">Continue Watching</h2>
+      <a href="watchlist.html" class="section-link">My Watchlist →</a>
+    </div>
+    <div class="cw-scroll" id="cwRow"></div>
+  </section>
+
+
+  <!-- ── Trending ─────────────────────────── -->
+  <section class="section-sm">
+    <div class="section-header">
+      <h2 class="section-title">Trending Now</h2>
+      <a href="browse.html?sort=trending" class="section-link">See All →</a>
+    </div>
+    <div class="scroll-row" id="trendingRow">
+      <!-- skeletons -->
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w50"></div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── Two-column: main + sidebar ──────── -->
+  <div class="content-grid" style="margin-top:40px">
+    <div class="content-left">
+
+      <!-- Popular All-Time -->
+      <section class="section-sm">
+        <div class="section-header">
+          <h2 class="section-title">All-Time Popular</h2>
+          <a href="browse.html?sort=popular" class="section-link">See All →</a>
+        </div>
+        <div class="scroll-row" id="popularRow">
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+        </div>
+      </section>
+
+      <!-- Browse by Genre -->
+      <section class="section-sm">
+        <div class="section-header">
+          <h2 class="section-title">Browse by Genre</h2>
+          <a href="browse.html" class="section-link">All Genres →</a>
+        </div>
+        <div class="filter-row" id="genreChips">
+          <span class="tag active" data-genre="">All</span>
+          <span class="tag" data-genre="Action">Action</span>
+          <span class="tag" data-genre="Romance">Romance</span>
+          <span class="tag" data-genre="Comedy">Comedy</span>
+          <span class="tag" data-genre="Drama">Drama</span>
+          <span class="tag" data-genre="Fantasy">Fantasy</span>
+          <span class="tag" data-genre="Sci-Fi">Sci-Fi</span>
+          <span class="tag" data-genre="Horror">Horror</span>
+          <span class="tag" data-genre="Mystery">Mystery</span>
+          <span class="tag" data-genre="Sports">Sports</span>
+          <span class="tag" data-genre="Psychological">Psychological</span>
+          <span class="tag" data-genre="Slice of Life">Slice of Life</span>
+          <span class="tag" data-genre="Mecha">Mecha</span>
+          <span class="tag" data-genre="Adventure">Adventure</span>
+        </div>
+        <div style="margin-top:16px">
+          <div class="grid-auto" id="genreGrid">
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+            <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- This Season -->
+      <section class="section-sm">
+        <div class="section-header">
+          <h2 class="section-title" id="seasonTitle">This Season</h2>
+          <a href="browse.html?filter=season" class="section-link">See All →</a>
+        </div>
+        <div class="grid-auto" id="seasonGrid">
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+          <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+        </div>
+      </section>
+
+    </div><!-- /content-left -->
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar-hide" style="display:flex;flex-direction:column;gap:20px">
+      <!-- Top 10 -->
+      <div class="sidebar-widget">
+        <div class="widget-header">Top 10 This Week</div>
+        <div id="rankList"><div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Loading...</div></div>
+      </div>
+
+      <!-- Recently Aired -->
+      <div class="sidebar-widget" id="airingWidget">
+        <div class="widget-header"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg> Airing Today</div>
+        <div id="airingList" style="padding:14px;font-size:12px;color:var(--text-muted)">Checking schedule...</div>
+      </div>
+    </aside>
+
+  </div><!-- /content-grid -->
+
+</div><!-- /page-wrap -->
+
+</main>
+
+
+
+<!-- ── AUTH MODAL (HUD STYLE) ── -->
+<div class="modal auth-modal-hud" id="authModal">
+  <div class="auth-hud-container">
+    <button class="auth-close" id="authClose" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    
+    <!-- Brand header -->
+    <div class="auth-header-brand">
+      <div class="auth-brand-logo"><img src="assets/favicon-192.png" alt="AniSmoke"></div>
+      <div class="auth-brand-title">AniSmoke</div>
+      <div class="auth-brand-subtitle">Your anime discovery hub</div>
+    </div>
+
+    <div class="auth-hud-body">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Sign In</div>
+        <div class="auth-tab" data-tab="register">Create Account</div>
+      </div>
+
+      <!-- Login form -->
+      <div id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Email Address</label>
+          <input class="input" id="loginEmail" type="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <div class="field-pw-wrap">
+            <input class="input" id="loginPass" type="password" placeholder="Enter your password" autocomplete="current-password">
+            <button type="button" class="pw-toggle" data-target="loginPass" aria-label="Show password"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+        <button class="auth-forgot-link" id="forgotPasswordBtn" type="button">Forgot password?</button>
+        <button class="btn btn-primary btn-full btn-lg" id="loginSubmit">Sign In</button>
+        <div class="auth-divider">or continue with</div>
+        <div class="oauth-row">
+          <button class="oauth-btn" id="googleOAuth">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button class="oauth-btn" id="discordOAuth">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="#5865F2"/></svg>
+            Discord
+          </button>
+        </div>
+      </div>
+
+      <!-- Register form -->
+      <div id="registerForm" class="hidden">
+        <div class="field"><label for="regName">Display Name</label><input class="input" id="regName" type="text" placeholder="Choose a display name"></div>
+        <div class="field"><label for="regEmail">Email Address</label><input class="input" id="regEmail" type="email" placeholder="you@example.com"></div>
+        <div class="field"><label for="regPass">Password</label><div class="field-pw-wrap"><input class="input" id="regPass" type="password" placeholder="At least 6 characters" autocomplete="new-password"><button type="button" class="pw-toggle" data-target="regPass" aria-label="Show password"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <button class="btn btn-primary btn-full btn-lg" id="registerSubmit">Create Account</button>
+      </div>
+
+      <!-- Email verification banner (hidden by default) -->
+      <div id="authVerifyBanner" class="auth-verify-banner hidden">
+        <div class="auth-verify-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="auth-verify-title">Check Your Email</div>
+        <div class="auth-verify-text">We've sent a confirmation link to <strong id="verifyEmailAddr"></strong>. Click the link to activate your account.</div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('authVerifyBanner').classList.add('hidden');document.getElementById('loginForm').classList.remove('hidden');document.querySelector('[data-tab=login]').click()">Back to Sign In</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DETAIL MODAL ═══════════════ -->
+<div class="overlay-backdrop" id="detailModal">
+  <div class="detail-modal">
+    <div class="detail-modal-banner">
+      <img id="dBanner" src="" alt="Anime Banner">
+      <button class="detail-modal-close" id="detailClose" aria-label="Close detail view"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+    <div class="detail-modal-body">
+      <div class="detail-modal-header">
+        <img class="detail-modal-poster" id="dPoster" src="" alt="Anime Poster">
+        <div class="detail-modal-info">
+          <div class="detail-modal-title"  id="dTitle"></div>
+          <div class="detail-modal-native" id="dNative"></div>
+          <div class="detail-modal-stats"  id="dStats"></div>
+        </div>
+      </div>
+      <p class="detail-modal-desc" id="dDesc"></p>
+      <div class="detail-modal-genres" id="dGenres"></div>
+      <div class="detail-modal-actions">
+        <button class="btn btn-primary btn-lg" id="dWatchBtn">▶ VIEW DETAILS</button>
+        <button class="btn btn-secondary" id="dWlBtn">♡ Add to Watchlist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-corner-tl"></div>
+  <div class="footer-corner-br"></div>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo">
+          <img src="assets/logo.png" alt="AniSmoke" style="width:32px;height:32px;filter:drop-shadow(0 0 5px var(--primary))">
+          <span>AniSmoke</span>
+        </a>
+        <p class="footer-desc">Experience anime like never before. High-fidelity streaming discovery with a next-gen cyberpunk HUD. Track, discover, and immerse yourself in the pulse of Neo-Tokyo.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <div class="footer-links">
+          <a href="index.html" class="footer-link">Home</a>
+          <a href="browse.html" class="footer-link">Browse Anime</a>
+          <a href="watchlist.html" class="footer-link">Watchlist</a>
+          <a href="browse.html?filter=schedule" class="footer-link">Schedule</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Terms of Service</a>
+          <a href="#" class="footer-link">Privacy Policy</a>
+          <a href="#" class="footer-link">DMCA</a>
+          <a href="#" class="footer-link">Contact</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Connect</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Discord Community</a>
+          <a href="#" class="footer-link">Twitter / X</a>
+          <a href="#" class="footer-link">GitHub Repository</a>
+          <a href="#" class="footer-link">Support Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-status">
+        <span class="status-dot"></span>
+        <span>System Status: Online</span>
+      </div>
+      <div class="footer-copyright">© 2026 AniSmoke. All rights reserved.</div>
+      <div class="footer-version">v2.0.0 // NEON_PULSE_BUILD</div>
+    </div>
+  </div>
+</footer>
+
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+/* ─── Index page logic ─────────────────────────────── */
+let spotlightList = [], spotlightIdx = 0, spotlightTimer;
+
+function renderRow(id, list) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  list.forEach(a => el.appendChild(buildAnimeCard(a)));
+}
+function renderGrid(id, list) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  list.forEach(a => el.appendChild(buildAnimeCard(a)));
+}
+
+function setSpotlight(anime, animate = true) {
+  // ── Remove skeleton overlay on first data load ──
+  const sk = document.getElementById('heroSkeleton');
+  if (sk) {
+    sk.classList.add('fade-out');
+    setTimeout(() => sk.remove(), 260);
+    document.getElementById('hero')?.classList.remove('is-loading');
+  }
+
+  const fullTitle = anime.title?.english || anime.title?.romaji || '—';
+  // Two-line split: first word top, rest bottom with gradient
+  const words = fullTitle.split(' ');
+  const line1  = words.length > 1 ? words[0] : fullTitle;
+  const line2  = words.length > 1 ? words.slice(1).join(' ') : '';
+
+  const banner = anime.bannerImage || anime.coverImage?.extraLarge || '';
+  const desc   = (anime.description || '').replace(/<[^>]*>/g,'').slice(0, 200);
+  const score  = anime.averageScore || 0;
+  const pct    = Math.round(score);
+
+  // ── Background crossfade ──
+  const heroEl = document.getElementById('hero');
+  const oldBg  = document.getElementById('heroBg');
+
+  if (animate && oldBg.style.backgroundImage) {
+    // Create a new bg layer underneath
+    const newBg = document.createElement('div');
+    newBg.className = 'as-hero-bg';
+    newBg.id = 'heroBg';
+    newBg.style.backgroundImage = `url(${banner})`;
+    newBg.style.opacity = '1';
+    heroEl.insertBefore(newBg, heroEl.firstChild);
+    // Fade out old
+    oldBg.classList.add('fade-out');
+    oldBg.removeAttribute('id');
+    setTimeout(() => oldBg.remove(), 950);
+  } else {
+    oldBg.style.backgroundImage = `url(${banner})`;
+  }
+
+  // ── Content slide-in re-trigger ──
+  const contentEl = document.querySelector('.as-hero-content');
+  if (animate) {
+    contentEl.classList.remove('entering');
+    void contentEl.offsetWidth; // force reflow
+    contentEl.classList.add('entering');
+  }
+
+  // ── Title (two-line) ──
+  document.getElementById('heroTitle').innerHTML =
+    `<div>${line1}</div>${line2 ? `<span>${line2}</span>` : ''}`;
+
+  // ── Synopsis ──
+  document.getElementById('heroDesc').textContent = desc + (desc.length >= 200 ? '…' : '');
+
+  // ── Meta row (SVG icons, no emoji) ──
+  const format = anime.format?.replace(/_/g, ' ') || 'TV';
+  const year   = anime.seasonYear || '';
+  const eps    = anime.episodes || '?';
+  document.getElementById('heroMeta').innerHTML = `
+    <span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+      ${format}
+    </span>
+    <span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+      ${year}
+    </span>
+    <span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+      ${eps} EPS
+    </span>
+  `;
+
+  // ── CTAs ──
+  document.getElementById('heroWatchBtn').onclick = () => location.href = `watch.html?id=${anime.id}`;
+  const wlBtn = document.getElementById('heroInfoBtn');
+  const inWl = Watchlist.has(anime.id);
+  wlBtn.textContent = inWl ? '♥ IN WATCHLIST' : '+ WATCHLIST';
+  wlBtn.onclick = () => {
+    if (!window.SupabaseClient?.Auth?.getUser()) {
+      Toast.info('Sign in to save to your watchlist');
+      document.querySelector('[data-action="open-auth"]')?.click();
+      return;
+    }
+    if (Watchlist.has(anime.id)) { Watchlist.remove(anime.id); }
+    else { Watchlist.add(anime, 'plan_to_watch'); }
+    setSpotlight(anime, false); // refresh button text only
+  };
+
+  // ── Score ring ──
+  if (score) {
+    document.getElementById('scoreVal').textContent = (score / 10).toFixed(1);
+    document.getElementById('scoreCircle').setAttribute('stroke-dasharray', `${pct}, 100`);
+    document.getElementById('heroScoreRing').style.display = 'flex';
+  } else {
+    document.getElementById('heroScoreRing').style.display = 'none';
+  }
+
+  // ── Dots ──
+  document.querySelectorAll('.hero-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === spotlightIdx)
+  );
+}
+
+function buildDots(n) {
+  const el = document.getElementById('heroDots');
+  el.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('div');
+    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => {
+      clearInterval(spotlightTimer);
+      spotlightIdx = i;
+      setSpotlight(spotlightList[i]);
+      startSpotlight();
+    };
+    el.appendChild(d);
+  }
+}
+
+function startSpotlight() {
+  clearInterval(spotlightTimer);
+  spotlightTimer = setInterval(() => {
+    spotlightIdx = (spotlightIdx + 1) % spotlightList.length;
+    setSpotlight(spotlightList[spotlightIdx]);
+  }, 8000);
+}
+document.getElementById('hero').addEventListener('mouseenter', () => clearInterval(spotlightTimer));
+document.getElementById('hero').addEventListener('mouseleave', startSpotlight);
+
+function renderRankList(list) {
+  const el = document.getElementById('rankList');
+  el.innerHTML = '';
+  list.slice(0,10).forEach((a,i) => {
+    const title = a.title?.english || a.title?.romaji || '?';
+    const score = a.averageScore ? (a.averageScore/10).toFixed(1) : '—';
+    const div = document.createElement('div');
+    div.className = 'rank-item';
+    div.onclick = () => openDetail(a);
+    const cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    div.innerHTML = `
+      <span class="rank-num ${cls}">${i+1}</span>
+      <img class="rank-thumb" src="${a.coverImage?.large}" alt="${title}" loading="lazy">
+      <div class="rank-info">
+        <div class="rank-title">${title}</div>
+        <div class="rank-sub">${[a.format,a.seasonYear].filter(Boolean).join(' · ')}</div>
+      </div>
+      <span class="rank-score"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${score}</span>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function buildAiringWidget(trending) {
+  const el = document.getElementById('airingList');
+  const airing = trending.filter(a=>a.nextAiringEpisode).slice(0,5);
+  if (!airing.length) { el.textContent = 'No airing data available'; return; }
+  el.innerHTML = '';
+  airing.forEach(a => {
+    const title = a.title?.english || a.title?.romaji;
+    const ep    = a.nextAiringEpisode.episode;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.2s';
+    div.innerHTML = `
+      <img src="${a.coverImage?.large}" style="width:36px;height:50px;object-fit:cover;flex-shrink:0" loading="lazy">
+      <div style="min-width:0">
+        <div style="font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${title}</div>
+        <div style="font-size:10px;color:var(--cyan);margin-top:2px">EP ${ep} airing</div>
+      </div>
+    `;
+    div.onmouseover = ()=>div.style.background='var(--bg-glass-hover)';
+    div.onmouseout  = ()=>div.style.background='';
+    div.onclick = ()=>openDetail(a);
+    el.appendChild(div);
+  });
+}
+
+// ── Genre filter ────────────────────────────────────
+document.getElementById('genreChips').addEventListener('click', async e => {
+  const chip = e.target.closest('.tag');
+  if (!chip) return;
+  document.querySelectorAll('#genreChips .tag').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  const genre = chip.dataset.genre;
+  const grid  = document.getElementById('genreGrid');
+  grid.innerHTML = `
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+  `;
+  const list = genre ? await AniSmokeAPI.getByGenre(genre,1,12) : await AniSmokeAPI.getPopular(1,12);
+  renderGrid('genreGrid', list);
+});
+
+// ── Main init ────────────────────────────────────────
+async function init() {
+  try {
+    const { season, year } = AniSmokeAPI.currentSeason();
+    document.getElementById('seasonTitle').textContent = `${season[0]+season.slice(1).toLowerCase()} ${year}`;
+
+    const [trending, popular, topRated, seasonal] = await Promise.all([
+      AniSmokeAPI.getTrending(1,20),
+      AniSmokeAPI.getPopular(1,16),
+      AniSmokeAPI.getTopRated(10),
+      AniSmokeAPI.getSeason(season, year, 8),
+    ]);
+
+    // Spotlight
+    const withBanner = trending.filter(a=>a.bannerImage);
+    spotlightList = withBanner.length >= 3 ? withBanner.slice(0,6) : trending.slice(0,6);
+    setSpotlight(spotlightList[0]);
+    buildDots(spotlightList.length);
+    startSpotlight();
+
+    // Rows
+    renderRow('trendingRow', trending.slice(0,16));
+    renderRow('popularRow', popular);
+    renderGrid('genreGrid', popular.slice(0,12));
+    renderGrid('seasonGrid', seasonal);
+    renderRankList(topRated);
+    buildAiringWidget(trending);
+
+  } catch(err) {
+    console.error('Init error:', err);
+    Toast.error('Failed to load anime data. Check your connection.');
+  }
+}
+
+init();
+
+// ── Continue Watching Shelf ─────────────────────────
+function renderContinueWatching() {
+  const section = document.getElementById('continueWatchingSection');
+  const row     = document.getElementById('cwRow');
+  if (!section || !row) return;
+
+  const user = Auth.getUser();
+  if (!user) {
+    section.classList.remove('visible');
+    return;
+  }
+
+  const watching = Watchlist.getAll('watching');
+  if (!watching.length) {
+    section.classList.remove('visible');
+    return;
+  }
+
+  row.innerHTML = '';
+
+  watching.forEach(entry => {
+    const pct = entry.total ? Math.round((entry.progress / entry.total) * 100) : 0;
+    const epText = entry.total
+      ? `EP ${entry.progress}/${entry.total}`
+      : entry.progress ? `EP ${entry.progress}` : 'NOT STARTED';
+    const nextEp = entry.progress + 1;
+
+    const card = document.createElement('div');
+    card.className = 'cw-card';
+    card.onclick = () => location.href = `watch.html?id=${entry.id}`;
+    card.innerHTML = `
+      <div class="cw-card-thumb">
+        <img src="${entry.cover}" alt="${entry.title}" loading="lazy"
+             onerror="this.style.opacity='0.3'">
+        <button class="cw-play" aria-label="Continue ${entry.title}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <div class="cw-ep-badge">EP ${nextEp}${entry.total ? ' / ' + entry.total : ''}</div>
+      </div>
+      <div class="cw-card-body">
+        <div class="cw-card-title">${entry.title}</div>
+        <div class="cw-card-meta">
+          <span class="cw-card-ep">${epText} WATCHED</span>
+          <span class="cw-card-pct">${pct}%</span>
+        </div>
+        <div class="cw-progress">
+          <div class="cw-progress-bar" style="width:${pct}%"></div>
+        </div>
+      </div>
+    `;
+    row.appendChild(card);
+  });
+
+  section.classList.add('visible');
+}
+
+// Reactively update on auth changes and watchlist mutations
+window.addEventListener('auth-state-change', renderContinueWatching);
+window.addEventListener('watchlist-update', renderContinueWatching);
+// Initial render (deferred so Auth.init() has fired)
+Promise.resolve().then(renderContinueWatching);
+</script>
+
+<!-- ── Service Worker Registration ── -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] Registered, scope:', reg.scope))
+      .catch(err => console.warn('[SW] Registration failed:', err));
+  });
+  // Listen for offline broadcast from SW
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data?.type === 'AS_OFFLINE' && window.Toast) {
+      Toast.warning('You\'re offline — some content may be unavailable');
+    }
+  });
+}
+</script>
+</body>
+</html>
