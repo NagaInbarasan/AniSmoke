@@ -5,7 +5,7 @@
   "main": "generate-config.js",
   "scripts": {
     "build": "node generate-config.js",
-    "dev": "npx servor . 5500 --reload"
+    "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1"
   },
   "keywords": [],
   "author": "",

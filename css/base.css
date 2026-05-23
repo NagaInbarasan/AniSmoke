@@ -353,6 +353,8 @@ code {
 .section-header {
   display: flex; align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
   margin-bottom: var(--stack-md);
 }
 .section-title {
@@ -569,6 +571,8 @@ code {
     --margin-edge: 16px;
   }
   .container { padding: 0 12px; }
+  .section-header { flex-wrap: wrap; align-items: flex-start; }
+  .section-title { flex: 1 1 180px; min-width: 0; }
   .grid-4, .grid-3, .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .grid-auto { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .section { padding: 24px 0; }
