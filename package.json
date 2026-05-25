@@ -2,9 +2,9 @@
   "name": "anismoke",
   "version": "1.0.0",
   "description": "AniSmoke - Premium Anime Streaming Platform",
-  "main": "generate-config.js",
+  "main": "js/app.js",
   "scripts": {
-    "build": "node generate-config.js",
+    "build": "echo 'AniSmoke ready'",
     "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1"
   },
   "keywords": [],

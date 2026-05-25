@@ -125,11 +125,6 @@ self.addEventListener('fetch', event => {
 
   // ── Same-origin ──
   if (url.origin === self.location.origin) {
-    // Exclude generated config from cache (always fetch fresh)
-    if (url.pathname === '/js/config.js') {
-      event.respondWith(safeRespond(() => fetchNetworkOnly(request)));
-      return;
-    }
     // Navigation requests (HTML pages): network-first so latest code always loads
     if (request.mode === 'navigate') {
       event.respondWith(safeRespond(() => fetchNetworkFirstWithOfflineFallback(request)));

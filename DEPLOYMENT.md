@@ -4,25 +4,12 @@ This document details the configuration requirements, optimization steps, and pr
 
 ---
 
-## 📋 Pre-Flight Checklist
+## 📦 Zero-Build Deployment
 
-### 1. Environment Variable Validation
-Ensure the following variables are set up in your hosting environment (e.g., Vercel Dashboard):
+AniSmoke is built as a pure client-side static application. There is no build compiler step, bundler, or Node.js runtime required to run the production site.
 
-| Variable | Description | Required / Optional | Local Dev Value |
-| :--- | :--- | :--- | :--- |
-| `SUPABASE_URL` | The REST endpoint URL of your Supabase project | Required | `https://getbnyrvktbzlermocfj.supabase.co` |
-| `SUPABASE_ANON_KEY` | Public API key used by client auth and DB operations | Required | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
-| `ANISMOKE_CONSUMET` | Custom stream provider URL (optional backup) | Optional | `""` |
-
----
-
-## 📦 Build Pipeline
-
-During the build phase (e.g., in a CI/CD process or Vercel deployment), the project environment variables are converted to a static JavaScript file that the browser can access without bundling or compile steps.
-
-* **Build Command:** `node generate-config.js`
-* **Output Artifact:** `js/config.js` (populates `window.ENV`)
+* **Build Command:** None (or `echo 'AniSmoke ready'`)
+* **Output Directory:** `.` (root directory)
 * **Framework:** Vanilla HTML / CSS / JS (Zero Bundler)
 
 ---
@@ -57,7 +44,7 @@ To ensure custom headers, security parameters, caching, and custom 404 fallbacks
       ]
     },
     {
-      "source": "/(sw.js|js/config.js)",
+      "source": "/sw.js",
       "headers": [
         {
           "key": "Cache-Control",
