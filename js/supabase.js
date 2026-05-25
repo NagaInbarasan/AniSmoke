@@ -200,7 +200,8 @@ const SupabaseClient = (() => {
         year:           entry.year || 0,
         score:          entry.score || 0,
         status:         entry.status || 'plan_to_watch',
-        progress:       entry.progress || 0
+        progress:       entry.progress || 0,
+        last_watched_at: entry.lastWatched ? new Date(entry.lastWatched).toISOString() : null
       };
       const { data, error } = await client
         .from('watchlists')
@@ -244,6 +245,41 @@ const SupabaseClient = (() => {
     }
   };
 
+  // ═══════════════════════════════════════════
+  //  NOTIFICATIONS DATABASE MODULE
+  // ═══════════════════════════════════════════
+  const NotificationsDB = {
+    /** Fetch notification subscription status for a user */
+    async getSubscription(userId) {
+      const client = init();
+      if (!client) return null;
+      const { data, error } = await client
+        .from('notification_subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (error) {
+        console.warn('[NotificationsDB] getSubscription error:', error.message);
+        return null;
+      }
+      return data;
+    },
+
+    /** Upsert (insert or update) notification subscription status */
+    async updateSubscription(userId, enabled) {
+      const client = init();
+      if (!client) throw new Error('Supabase not initialized');
+      const { error } = await client
+        .from('notification_subscriptions')
+        .upsert({
+          user_id: userId,
+          enabled: enabled,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      if (error) throw error;
+    }
+  };
+
   // ── Helpers ──
 
   /** Convert a database row to the app's watchlist entry format */
@@ -258,7 +294,8 @@ const SupabaseClient = (() => {
       score:    row.score,
       status:   row.status,
       progress: row.progress,
-      addedAt:  new Date(row.added_at).getTime()
+      addedAt:  new Date(row.added_at).getTime(),
+      lastWatched: row.last_watched_at ? new Date(row.last_watched_at).getTime() : null
     };
   }
 
@@ -267,6 +304,7 @@ const SupabaseClient = (() => {
     init,
     Auth,
     WatchlistDB,
+    NotificationsDB,
     get client() { return _client; },
     get ready()  { return !!_client; }
   };

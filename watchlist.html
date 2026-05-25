@@ -8,7 +8,7 @@
   <meta property="og:title" content="My Watchlist — AniSmoke">
   <meta property="og:description" content="AniSmoke — Discover and watch anime. Your personal anime discovery hub.">
   <meta property="og:image" content="assets/logo.png">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://browser.sentry-cdn.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Watchlist — AniSmoke</title>
   <link rel="icon" type="image/png" href="assets/favicon-32.png">
@@ -244,6 +244,42 @@
     @media (max-width: 400px) {
       .wl-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Franchise Folder Cards ── */
+    .wl-folder-card {
+      border-color: var(--primary);
+      position: relative;
+    }
+    .wl-folder-card::before {
+      content: ''; position: absolute;
+      top: -4px; left: 4px; right: -4px; bottom: 4px;
+      border: 1px solid rgba(188,19,254,0.3);
+      z-index: -1; background: var(--bg-card);
+      transition: all var(--transition);
+    }
+    .wl-folder-card:hover::before {
+      top: -6px; left: 6px; right: -6px; bottom: 6px;
+      border-color: rgba(188,19,254,0.5);
+    }
+    .wl-folder-badge {
+      position: absolute; top: 10px; left: 10px;
+      background: var(--primary); color: #fff;
+      font-size: 9px; font-weight: 900;
+      padding: 4px 8px; letter-spacing: 0.1em;
+      text-transform: uppercase; z-index: 2;
+      box-shadow: 0 0 10px rgba(188,19,254,0.5);
+    }
+
+    /* ── Franchise Modal ── */
+    .franchise-modal-body {
+      padding: 24px; max-height: 80vh; overflow-y: auto;
+    }
+    .franchise-modal-title {
+      font-family: var(--font-headline); font-size: 24px;
+      font-weight: 900; margin-bottom: 20px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border); padding-bottom: 10px;
+      color: var(--primary); text-shadow: 0 0 10px rgba(188,19,254,0.3);
+    }
   </style>
 
 </head>
@@ -304,6 +340,8 @@
     <div class="as-search" id="searchWrap" style="max-width: 400px; margin: 0 auto 0 0;">
       <span class="as-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
       <input id="headerSearchInput" type="text" placeholder="Search database..." autocomplete="off">
+      <span class="as-search-camera" id="searchCameraBtn" role="button" aria-label="Reverse Image Search" tabindex="0" title="Upload screenshot to find anime"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+      <input type="file" id="traceUploadInput" accept="image/*" style="display:none">
       <span class="as-search-clear" id="searchClear" role="button" aria-label="Clear search" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
       <div class="as-search-dropdown" id="searchDropdown"></div>
     </div>
@@ -314,7 +352,24 @@
       <button class="btn btn-ghost btn-sm" data-auth="guest" data-action="open-auth">Sign In</button>
 
       <!-- Logged in -->
-      <div style="position:relative;display:none" data-auth="user">
+      <div style="position:relative;display:none;" data-auth="user">
+        
+        <!-- Notification Bell -->
+        <div id="notifBellWrap">
+          <button id="notifBellBtn" title="Notifications" aria-label="Notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span id="notifBadge" style="display:none;"></span>
+          </button>
+          <div class="user-dropdown" id="notifDropdown">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-name">Airing Schedule</div>
+            </div>
+            <div id="notifList">
+              <div class="notif-empty">No new episodes aired.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="user-menu-btn" id="userMenuBtn" title="Your account" role="button" aria-label="User menu" tabindex="0">
           <span data-auth="avatar">?</span>
           <span class="online-dot"></span>
@@ -399,7 +454,21 @@
     <!-- ── Authenticated content ── -->
     <div id="wlMainContent">
 
-
+      <!-- ── Smart Lists ── -->
+      <div class="smart-lists-wrap" style="margin-bottom: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn btn-outline btn-sm smart-list-btn" data-smart-list="binge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg>
+          Weekend Binge
+        </button>
+        <button class="btn btn-outline btn-sm smart-list-btn" data-smart-list="short">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Short Anime
+        </button>
+        <button class="btn btn-outline btn-sm smart-list-btn" data-smart-list="finish">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          Finish Later
+        </button>
+      </div>
 
       <div class="wl-controls">
         <div class="wl-search">
@@ -490,6 +559,17 @@
   </div>
 </div>
 
+<!-- ── Franchise Modal ── -->
+<div class="overlay-backdrop" id="franchiseModal" style="display:none;z-index:9999;">
+  <div class="detail-modal" style="max-width: 800px;">
+    <button class="detail-modal-close" style="position:absolute;top:15px;right:15px;background:var(--bg-glass);" onclick="closeFranchiseModal()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="franchise-modal-body">
+      <div class="franchise-modal-title" id="fModalTitle">Franchise Name</div>
+      <div class="wl-grid" id="fModalGrid"></div>
+    </div>
+  </div>
+</div>
+
 <footer class="site-footer">
   <div class="footer-corner-tl"></div>
   <div class="footer-corner-br"></div>
@@ -542,6 +622,7 @@
 </footer>
 
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script src="js/errors.js"></script>
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -549,9 +630,18 @@
 
 <script src="js/security.js"></script>
 <script src="js/api.js"></script>
+<script src="js/watchlist.js"></script>
+<script src="js/components.js"></script>
+<script src="js/services/search.js"></script>
+<script src="js/hooks/useSearch.js"></script>
+<script src="js/search.js"></script>
+<script src="js/services/notification.js"></script>
+<script src="js/airing.js"></script>
+<script src="jobs/scheduler.js"></script>
 <script src="js/app.js"></script>
 <script>
   let activeStatus = 'all';
+  let activeSmartList = null;
   let filterText   = '';
   let sortKey      = 'addedAt';
 
@@ -574,39 +664,36 @@
     });
   }
 
-  function renderWatchlist() {
-    const content = document.getElementById('wlContent');
-    let list = Watchlist.getAll(activeStatus === 'all' ? null : activeStatus);
-    if (filterText) list = list.filter(e => e.title.toLowerCase().includes(filterText.toLowerCase()));
-    list = sortList(list);
-    updateCounts();
+  function getBaseTitle(title) {
+    if (!title) return 'Unknown';
+    let base = title
+      .replace(/(?:\s|-)(?:season|part|chapter|movie|ova|ona|special|tv|cour)\s*\d*.*/i, '')
+      .replace(/\s(?:ii|iii|iv|v|vi|vii)$/i, '')
+      .replace(/[:\-]$/, '')
+      .trim();
+    return base.length < 3 ? title : base;
+  }
 
-    if (!list.length) {
-      content.innerHTML = `
-        <div class="wl-empty">
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.15"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
-          <div class="wl-empty-title">${activeStatus === 'all' ? 'DATABASE EMPTY' : 'NO MATCHES FOUND'}</div>
-          <div class="wl-empty-text">${activeStatus === 'all' ? 'Add anime to start tracking your progress.' : 'Try a different tab or search term.'}</div>
-          <a href="browse.html" class="btn btn-primary">SEARCH DATABASE</a>
-        </div>`;
-      return;
-    }
+  function clusterWatchlist(list) {
+    const clusters = {};
+    list.forEach(item => {
+      const base = getBaseTitle(item.title);
+      if (!clusters[base]) clusters[base] = [];
+      clusters[base].push(item);
+    });
+    return Object.values(clusters);
+  }
 
-    const grid = document.createElement('div');
-    grid.className = 'wl-grid';
+  function buildCardHTML(entry) {
+    const pct  = entry.total ? Math.round((entry.progress / entry.total) * 100) : 0;
+    const epTx = entry.total
+      ? `WATCHED ${entry.progress}/${entry.total} EP`
+      : entry.progress ? `EP ${entry.progress} WATCHED` : 'NOT STARTED';
 
-    list.forEach(entry => {
-      const pct  = entry.total ? Math.round((entry.progress / entry.total) * 100) : 0;
-      const epTx = entry.total
-        ? `WATCHED ${entry.progress}/${entry.total} EP`
-        : entry.progress ? `EP ${entry.progress} WATCHED` : 'NOT STARTED';
-
-      const card = document.createElement('div');
-      card.className = 'wl-item-card';
-      card.innerHTML = `
+    return `
+      <div class="wl-item-card">
         <div class="wl-item-thumb">
-          <img src="${entry.cover}" alt="${entry.title}" loading="lazy"
-            onerror="this.style.opacity='0.3'">
+          <img src="${entry.cover}" alt="${entry.title}" loading="lazy" onerror="this.style.opacity='0.3'">
           ${pct ? `<div class="wl-item-pct">${pct}%</div>` : ''}
         </div>
         <div class="wl-item-content">
@@ -628,13 +715,86 @@
                 `<option value="${v}" ${v===entry.status?'selected':''}>${l.toUpperCase()}</option>`
               ).join('')}
             </select>
-            <button class="btn btn-ghost btn-icon" style="width:34px;height:34px;flex:none"
-              onclick="removeEntry('${entry.id}')" aria-label="Remove">
+            <button class="btn btn-ghost btn-icon" style="width:34px;height:34px;flex:none" onclick="removeEntry('${entry.id}')" aria-label="Remove">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
             </button>
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderWatchlist() {
+    const content = document.getElementById('wlContent');
+    let list = Watchlist.getAll(activeStatus === 'all' ? null : activeStatus);
+    if (filterText) list = list.filter(e => e.title.toLowerCase().includes(filterText.toLowerCase()));
+    
+    // Apply Smart List filters
+    if (activeSmartList === 'binge') {
+      list = list.filter(e => e.total >= 24);
+    } else if (activeSmartList === 'short') {
+      list = list.filter(e => e.total > 0 && e.total < 15);
+    } else if (activeSmartList === 'finish') {
+      list = list.filter(e => (e.status === 'watching' || e.status === 'on_hold') && e.progress > 0);
+    }
+
+    list = sortList(list);
+    updateCounts();
+
+    if (!list.length) {
+      content.innerHTML = `
+        <div class="wl-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.15"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+          <div class="wl-empty-title">${activeStatus === 'all' ? 'DATABASE EMPTY' : 'NO MATCHES FOUND'}</div>
+          <div class="wl-empty-text">${activeStatus === 'all' ? 'Add anime to start tracking your progress.' : 'Try a different tab or search term.'}</div>
+          <a href="browse.html" class="btn btn-primary">SEARCH DATABASE</a>
         </div>`;
-      grid.appendChild(card);
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'wl-grid';
+
+    const clusters = clusterWatchlist(list);
+    window._currentClusters = clusters; // Store globally for modal access
+
+    clusters.forEach((cluster, idx) => {
+      if (cluster.length === 1) {
+        // Standard item
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = buildCardHTML(cluster[0]);
+        grid.appendChild(wrapper.firstElementChild);
+      } else {
+        // Franchise Folder
+        const baseTitle = getBaseTitle(cluster[0].title);
+        const cover = cluster[0].cover;
+        const completedCount = cluster.filter(e => e.status === 'completed').length;
+        
+        const folder = document.createElement('div');
+        folder.className = 'wl-item-card wl-folder-card';
+        folder.innerHTML = `
+          <div class="wl-item-thumb">
+            <div class="wl-folder-badge">${cluster.length} ENTRIES</div>
+            <img src="${cover}" alt="${baseTitle}" loading="lazy" onerror="this.style.opacity='0.3'">
+          </div>
+          <div class="wl-item-content">
+            <div class="wl-item-title">${baseTitle}</div>
+            <div class="wl-item-ep">${completedCount} COMPLETED • ${cluster.length - completedCount} IN PROGRESS</div>
+            <div class="wl-item-progress-wrap" style="margin-top:10px;">
+              <div class="wl-item-progress-label">
+                <span style="color:var(--primary)">FRANCHISE SYNC</span>
+              </div>
+            </div>
+            <div class="wl-item-actions">
+              <button class="btn btn-outline btn-full" onclick="openFranchiseModal(${idx})">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                OPEN FOLDER
+              </button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(folder);
+      }
     });
 
     content.innerHTML = '';
@@ -652,6 +812,26 @@
     Watchlist.remove(id);
     renderWatchlist();
     Toast.info('Entry removed from watchlist.');
+  }
+
+  function openFranchiseModal(idx) {
+    const cluster = window._currentClusters[idx];
+    if (!cluster) return;
+    
+    document.getElementById('fModalTitle').textContent = getBaseTitle(cluster[0].title) + ' FRANCHISE';
+    const grid = document.getElementById('fModalGrid');
+    grid.innerHTML = '';
+    cluster.forEach(entry => {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = buildCardHTML(entry);
+      grid.appendChild(wrapper.firstElementChild);
+    });
+    
+    document.getElementById('franchiseModal').style.display = 'flex';
+  }
+
+  function closeFranchiseModal() {
+    document.getElementById('franchiseModal').style.display = 'none';
   }
 
   document.getElementById('statusTabs').addEventListener('click', e => {
@@ -672,6 +852,32 @@
     sortKey = e.target.value;
     renderWatchlist();
   });
+
+  const smartListsWrap = document.querySelector('.smart-lists-wrap');
+  if (smartListsWrap) {
+    smartListsWrap.addEventListener('click', e => {
+      const btn = e.target.closest('.smart-list-btn');
+      if (!btn) return;
+      
+      const listId = btn.dataset.smartList;
+      if (activeSmartList === listId) {
+        // Toggle off
+        activeSmartList = null;
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      } else {
+        // Toggle on
+        activeSmartList = listId;
+        smartListsWrap.querySelectorAll('.smart-list-btn').forEach(b => {
+          b.classList.remove('btn-primary');
+          b.classList.add('btn-outline');
+        });
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+      }
+      renderWatchlist();
+    });
+  }
 
   // ── Auth Gate: show login wall for guests, list for signed-in users ──
   function checkAuthGate() {

@@ -9,7 +9,7 @@
   <meta property="og:title" content="AniSmoke — Anime Discovery Hub">
   <meta property="og:description" content="AniSmoke — Discover and watch anime. Your personal anime discovery hub.">
   <meta property="og:image" content="assets/logo.png">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https:; frame-src https:;">
   <title>AniSmoke — Anime Discovery Hub</title>
   <link rel="icon" type="image/png" href="assets/favicon-32.png">
   <link rel="manifest" href="site.webmanifest">
@@ -252,6 +252,8 @@
     <div class="as-search" id="searchWrap" style="max-width: 400px; margin: 0 auto 0 0;">
       <span class="as-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
       <input id="headerSearchInput" type="text" placeholder="Search database..." autocomplete="off">
+      <span class="as-search-camera" id="searchCameraBtn" role="button" aria-label="Reverse Image Search" tabindex="0" title="Upload screenshot to find anime"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+      <input type="file" id="traceUploadInput" accept="image/*" style="display:none">
       <span class="as-search-clear" id="searchClear" role="button" aria-label="Clear search" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
       <div class="as-search-dropdown" id="searchDropdown"></div>
     </div>
@@ -262,7 +264,24 @@
       <button class="btn btn-ghost btn-sm" data-auth="guest" data-action="open-auth">Sign In</button>
 
       <!-- Logged in -->
-      <div style="position:relative;display:none" data-auth="user">
+      <div style="position:relative;display:none;" data-auth="user">
+        
+        <!-- Notification Bell -->
+        <div id="notifBellWrap">
+          <button id="notifBellBtn" title="Notifications" aria-label="Notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span id="notifBadge" style="display:none;"></span>
+          </button>
+          <div class="user-dropdown" id="notifDropdown">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-name">Airing Schedule</div>
+            </div>
+            <div id="notifList">
+              <div class="notif-empty">No new episodes aired.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="user-menu-btn" id="userMenuBtn" title="Your account" role="button" aria-label="User menu" tabindex="0">
           <span data-auth="avatar">?</span>
           <span class="online-dot"></span>
@@ -374,6 +393,39 @@
 
 <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
 <main class="container">
+
+  <!-- ── Mood Discovery ── -->
+  <section class="section-sm">
+    <div class="section-header">
+      <h2 class="section-title">What's Your Vibe?</h2>
+    </div>
+    <div class="mood-grid">
+      <a href="browse.html?genre=Drama,Slice of Life" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #1e3c72, #2a5298)">
+        <span class="mood-icon">🌧️</span>
+        <span class="mood-label">Sad</span>
+      </a>
+      <a href="browse.html?genre=Action,Adventure" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #ff416c, #ff4b2b)">
+        <span class="mood-icon">🔥</span>
+        <span class="mood-label">Action</span>
+      </a>
+      <a href="browse.html?genre=Comedy,Slice of Life" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #f7b733, #fc4a1a)">
+        <span class="mood-icon">☕</span>
+        <span class="mood-label">Study Break</span>
+      </a>
+      <a href="browse.html?genre=Action,Sports" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #bc13fe, #0abdfa)">
+        <span class="mood-icon">⚡</span>
+        <span class="mood-label">Hype</span>
+      </a>
+      <a href="browse.html?genre=Slice of Life,Comedy,Music" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #11998e, #38ef7d)">
+        <span class="mood-icon">🍃</span>
+        <span class="mood-label">Chill</span>
+      </a>
+      <a href="browse.html?genre=Horror,Psychological,Thriller" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #000000, #434343)">
+        <span class="mood-icon">👁️</span>
+        <span class="mood-label">Horror</span>
+      </a>
+    </div>
+  </section>
 
   <!-- ── Continue Watching (auth-gated) ── -->
   <section class="section-sm" id="continueWatchingSection">
@@ -639,6 +691,7 @@
 
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
+<script src="js/errors.js"></script>
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
@@ -646,6 +699,14 @@
 
 <script src="js/security.js"></script>
 <script src="js/api.js"></script>
+<script src="js/watchlist.js"></script>
+<script src="js/components.js"></script>
+<script src="js/services/search.js"></script>
+<script src="js/hooks/useSearch.js"></script>
+<script src="js/search.js"></script>
+<script src="js/services/notification.js"></script>
+<script src="js/airing.js"></script>
+<script src="jobs/scheduler.js"></script>
 <script src="js/app.js"></script>
 <script>
 /* ─── Index page logic ─────────────────────────────── */
@@ -910,7 +971,7 @@ function renderContinueWatching() {
     return;
   }
 
-  const watching = Watchlist.getAll('watching');
+  const watching = Watchlist.getAll('watching').sort((a, b) => (b.lastWatched || 0) - (a.lastWatched || 0));
   if (!watching.length) {
     section.classList.remove('visible');
     return;

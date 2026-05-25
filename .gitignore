@@ -18,5 +18,15 @@ Thumbs.db
 .vscode/
 .idea/
 
+# ── Scratch / temp dev files ──
+scratch/
+
+# ── One-off test scripts ──
+test-*.js
+
+# ── Internal dev reports (not user-facing) ──
+PR_NOTIFICATION_FIX.md
+TEST_REPORT.md
+
 # ── Vercel local cache ──
 .vercel/
