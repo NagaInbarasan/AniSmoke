@@ -280,6 +280,258 @@
       border-bottom: 1px solid var(--border); padding-bottom: 10px;
       color: var(--primary); text-shadow: 0 0 10px rgba(188,19,254,0.3);
     }
+
+    /* Mobile watchlist: compact dashboard and dense progress rows */
+    @media (max-width: 768px) {
+      .wl-title-section {
+        padding: 24px 0 0;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(188,19,254,0.12), transparent 42%),
+          linear-gradient(180deg, rgba(255,255,255,0.025), transparent);
+      }
+      .wl-main-title {
+        font-size: 38px;
+        letter-spacing: 0;
+        line-height: 0.98;
+        margin-bottom: 12px;
+      }
+      .wl-subtitle {
+        margin-bottom: 18px;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+      }
+      .status-tabs {
+        margin-left: -16px;
+        margin-right: -16px;
+        padding: 0 16px;
+        gap: 18px;
+        border-bottom-color: rgba(255,255,255,0.08);
+      }
+      .status-tab {
+        flex: 0 0 auto;
+        padding: 12px 0 13px;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+      }
+      .status-tab .count {
+        border-radius: 4px;
+      }
+
+      main.container.section {
+        padding-top: 18px !important;
+      }
+      .smart-lists-wrap {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        margin: 0 -16px 18px !important;
+        padding: 0 16px 4px;
+        gap: 10px !important;
+        scrollbar-width: none;
+      }
+      .smart-lists-wrap::-webkit-scrollbar { display: none; }
+      .smart-list-btn {
+        flex: 0 0 auto;
+        min-width: 156px;
+        min-height: 48px;
+        border-radius: 12px;
+        justify-content: center;
+      }
+
+      .wl-controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin: 16px 0 18px;
+      }
+      .wl-search {
+        width: 100%;
+        max-width: none;
+      }
+      .wl-search input {
+        min-height: 50px;
+        padding: 0 0 0 34px;
+        font-size: 13px;
+      }
+      .wl-controls > div:last-child {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px !important;
+        align-items: stretch !important;
+      }
+      .sort-select {
+        min-width: 0;
+        width: 100%;
+        min-height: 48px;
+        border-radius: 12px;
+        padding: 0 12px;
+      }
+      .wl-controls .btn-primary {
+        min-height: 48px;
+        border-radius: 12px;
+        clip-path: none;
+        padding: 0 14px;
+      }
+
+      .wl-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .wl-item-card {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        min-height: 118px;
+        overflow: hidden;
+        border-radius: 16px;
+        background:
+          linear-gradient(135deg, rgba(18,23,34,0.96), rgba(8,10,16,0.96));
+      }
+      .wl-item-card:hover {
+        transform: none;
+      }
+      .wl-item-thumb {
+        width: 112px;
+        height: 100%;
+        min-height: 118px;
+        aspect-ratio: auto;
+        border-right: 1px solid var(--border);
+        border-bottom: 0;
+      }
+      .wl-item-thumb img {
+        height: 100%;
+      }
+      .wl-item-pct {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        border-top: 1px solid rgba(0,238,252,0.2);
+        border-bottom: 0;
+        font-size: 9px;
+      }
+      .wl-item-content {
+        min-width: 0;
+        padding: 12px;
+        gap: 6px;
+      }
+      .wl-item-title {
+        font-size: 14px;
+        line-height: 1.25;
+        letter-spacing: 0;
+        text-transform: none;
+        -webkit-line-clamp: 2;
+      }
+      .wl-item-ep {
+        font-size: 10px;
+        color: var(--text-secondary);
+      }
+      .wl-item-progress-wrap {
+        gap: 5px;
+      }
+      .wl-item-progress-label {
+        font-size: 9px;
+      }
+      .wl-item-progress-label span:first-child {
+        display: none;
+      }
+      .wl-item-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 72px 40px;
+        gap: 6px;
+        margin-top: 2px;
+      }
+      .wl-item-actions .btn {
+        min-height: 38px;
+        min-width: 0;
+        padding: 0 8px;
+        border-radius: 10px;
+        clip-path: none;
+        font-size: 10px;
+      }
+      .wl-status-mini {
+        width: 100%;
+        min-width: 0;
+        min-height: 38px;
+        border-radius: 10px;
+        padding: 0 6px;
+        font-size: 8px;
+      }
+      .wl-item-actions .btn-icon {
+        width: 40px !important;
+        height: 38px !important;
+        min-height: 38px;
+      }
+      .wl-folder-card::before {
+        display: none;
+      }
+      .wl-folder-badge {
+        top: 8px;
+        left: 8px;
+        border-radius: 8px;
+        font-size: 8px;
+      }
+      .wl-empty {
+        padding: 56px 16px;
+      }
+      .wl-auth-gate {
+        margin: 18px 0;
+        padding: 44px 18px 48px;
+        border-radius: 18px;
+      }
+      .wl-gate-actions .btn {
+        width: 100%;
+        clip-path: none;
+        border-radius: 12px;
+      }
+      .franchise-modal-body {
+        padding: 18px;
+      }
+      .franchise-modal-body .wl-grid {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .wl-main-title { font-size: 34px; }
+      .wl-item-card {
+        grid-template-columns: 98px minmax(0, 1fr);
+        min-height: 112px;
+      }
+      .wl-item-thumb {
+        width: 98px;
+        min-height: 112px;
+      }
+      .wl-item-content {
+        padding: 10px;
+      }
+      .wl-item-actions {
+        grid-template-columns: minmax(0, 1fr) 64px 38px;
+      }
+      .wl-item-actions .btn {
+        font-size: 9px;
+      }
+    }
+
+    @media (max-width: 340px) {
+      .wl-controls > div:last-child {
+        grid-template-columns: 1fr;
+      }
+      .wl-controls .btn-primary {
+        width: 100%;
+      }
+      .wl-item-card {
+        grid-template-columns: 88px minmax(0, 1fr);
+      }
+      .wl-item-thumb {
+        width: 88px;
+      }
+      .wl-status-mini {
+        display: none;
+      }
+      .wl-item-actions {
+        grid-template-columns: minmax(0, 1fr) 38px;
+      }
+    }
   </style>
 
 </head>

@@ -6,7 +6,7 @@
      • CDN scripts (Supabase SDK)      → Cache-First
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME   = 'anismoke-shell-v10';
+const CACHE_NAME   = 'anismoke-shell-v11';
 const OFFLINE_URL  = '/404.html';
 
 // Static assets that form the app shell
@@ -245,4 +245,3 @@ function notifyClientsOffline() {
     );
   }).catch(() => { /* ignore messaging errors */ });
 }
-

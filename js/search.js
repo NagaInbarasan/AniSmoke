@@ -11,6 +11,24 @@ function initSearch(onSelect) {
   const clearBtn  = document.getElementById('searchClear');
   if (!input || !dropdown) return;
 
+  /* ── Mobile Search Toggle ── */
+  const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+  const headerEl = document.querySelector('.as-header');
+  if (mobileSearchBtn && headerEl) {
+    mobileSearchBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      headerEl.classList.toggle('mobile-search-active');
+      if (headerEl.classList.contains('mobile-search-active')) {
+        input.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.as-search') && !e.target.closest('#mobileSearchBtn')) {
+        headerEl.classList.remove('mobile-search-active');
+      }
+    });
+  }
+
   const RECENT_KEY  = 'as-recent-searches';
   const MAX_RECENT  = 5;
   let kbdIndex = -1, currentResults = [];

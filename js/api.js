@@ -178,6 +178,15 @@ const AniSmokeAPI = (() => {
       }`, { g: genre, page, pp: perPage }).then(d => d?.Page?.media || []);
     },
 
+    /* ── By Multiple Genres ───────────────────────────────── */
+    getByGenres(genres, page = 1, perPage = 20) {
+      return gql(`query ($g:[String],$page:Int,$pp:Int) {
+        Page(page:$page,perPage:$pp) {
+          media(type:ANIME,genre_in:$g,sort:POPULARITY_DESC) { ${MEDIA_FRAGMENT} }
+        }
+      }`, { g: genres, page, pp: perPage }).then(d => d?.Page?.media || []);
+    },
+
     /* ── Search ───────────────────────────────────────────── */
     search(query, perPage = 10) {
       return swr(`as-search-${query}`, async () => {

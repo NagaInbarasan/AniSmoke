@@ -295,8 +295,12 @@
           <div class="user-dropdown-divider"></div>
           <div class="user-dropdown-item danger" id="logoutBtn">Sign Out</div>
         </div>
-      </div>
     </div>
+    
+    <!-- Mobile Search Icon -->
+    <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="Search" role="button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
   </div>
 </header>
 
@@ -394,44 +398,46 @@
 <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
 <main class="container">
 
-  <!-- ── Mood Discovery ── -->
+  <!-- ── Mood Discovery (Multi-Filter) ── -->
   <section class="section-sm">
     <div class="section-header">
       <h2 class="section-title">What's Your Vibe?</h2>
+      <button id="clearVibesBtn" class="btn btn-ghost btn-sm" style="display: none; font-size: 11px; padding: 4px 10px; min-height: 28px; height: 28px; line-height: 1;">Clear</button>
     </div>
-    <div class="mood-grid">
-      <a href="browse.html?genre=Drama,Slice of Life" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #1e3c72, #2a5298)">
-        <span class="mood-icon">🌧️</span>
-        <span class="mood-label">Sad</span>
-      </a>
-      <a href="browse.html?genre=Action,Adventure" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #ff416c, #ff4b2b)">
-        <span class="mood-icon">🔥</span>
-        <span class="mood-label">Action</span>
-      </a>
-      <a href="browse.html?genre=Comedy,Slice of Life" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #f7b733, #fc4a1a)">
-        <span class="mood-icon">☕</span>
-        <span class="mood-label">Study Break</span>
-      </a>
-      <a href="browse.html?genre=Action,Sports" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #bc13fe, #0abdfa)">
-        <span class="mood-icon">⚡</span>
-        <span class="mood-label">Hype</span>
-      </a>
-      <a href="browse.html?genre=Slice of Life,Comedy,Music" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #11998e, #38ef7d)">
-        <span class="mood-icon">🍃</span>
-        <span class="mood-label">Chill</span>
-      </a>
-      <a href="browse.html?genre=Horror,Psychological,Thriller" class="mood-tile" style="--mood-bg: linear-gradient(135deg, #000000, #434343)">
-        <span class="mood-icon">👁️</span>
-        <span class="mood-label">Horror</span>
-      </a>
+    <div class="vibe-chips-container" id="vibeChips">
+      <button class="vibe-chip" data-genres="Drama,Slice of Life" style="--vibe-color: #3b82f6;"><span class="vibe-icon">🌧️</span> Sad</button>
+      <button class="vibe-chip" data-genres="Action,Adventure" style="--vibe-color: #ef4444;"><span class="vibe-icon">🔥</span> Action</button>
+      <button class="vibe-chip" data-genres="Comedy,Slice of Life" style="--vibe-color: #f59e0b;"><span class="vibe-icon">☕</span> Study</button>
+      <button class="vibe-chip" data-genres="Action,Sports" style="--vibe-color: #a855f7;"><span class="vibe-icon">⚡</span> Hype</button>
+      <button class="vibe-chip" data-genres="Slice of Life,Comedy,Music" style="--vibe-color: #10b981;"><span class="vibe-icon">🍃</span> Chill</button>
+      <button class="vibe-chip" data-genres="Horror,Psychological,Thriller" style="--vibe-color: #6b7280;"><span class="vibe-icon">👁️</span> Horror</button>
+    </div>
+
+    <!-- Dynamic Vibe Matches -->
+    <div id="vibeResultsSection" style="display: none; margin-top: 20px;">
+      <div class="grid-auto" id="vibeResultsGrid"></div>
     </div>
   </section>
+
+  <!-- ── Welcome Back Banner (auth-gated) ── -->
+  <div class="as-welcome-card" data-auth="user" style="display: none;" onclick="location.href='watchlist.html'">
+    <div class="as-welcome-content">
+      <div class="as-welcome-emoji">👋</div>
+      <div class="as-welcome-text">
+        <span class="welcome-label">Welcome back,</span>
+        <span class="welcome-name" data-auth="name">User</span>!
+      </div>
+    </div>
+    <div class="as-welcome-arrow">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
 
   <!-- ── Continue Watching (auth-gated) ── -->
   <section class="section-sm" id="continueWatchingSection">
     <div class="section-header">
       <h2 class="section-title">Continue Watching</h2>
-      <a href="watchlist.html" class="section-link">My Watchlist →</a>
+      <a href="watchlist.html" class="section-link">View all ›</a>
     </div>
     <div class="cw-scroll" id="cwRow"></div>
   </section>
@@ -900,6 +906,68 @@ function buildAiringWidget(trending) {
     div.onclick = ()=>openDetail(a);
     el.appendChild(div);
   });
+}
+
+// ── Vibe filter (Multi-Select) ───────────────────────
+const vibeContainer = document.getElementById('vibeChips');
+const clearVibesBtn = document.getElementById('clearVibesBtn');
+const vibeResultsSection = document.getElementById('vibeResultsSection');
+const vibeResultsGrid = document.getElementById('vibeResultsGrid');
+
+if (vibeContainer && vibeResultsSection && vibeResultsGrid) {
+  vibeContainer.addEventListener('click', async e => {
+    const chip = e.target.closest('.vibe-chip');
+    if (!chip) return;
+    
+    // Toggle active state
+    chip.classList.toggle('active');
+    
+    // Collect unique genres
+    const activeChips = vibeContainer.querySelectorAll('.vibe-chip.active');
+    if (activeChips.length === 0) {
+      vibeResultsSection.style.display = 'none';
+      if (clearVibesBtn) clearVibesBtn.style.display = 'none';
+      return;
+    }
+    
+    if (clearVibesBtn) clearVibesBtn.style.display = '';
+    vibeResultsSection.style.display = 'block';
+    
+    // Show skeleton loading cards
+    vibeResultsGrid.innerHTML = `
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
+    `;
+    
+    const genreSet = new Set();
+    activeChips.forEach(c => {
+      const genres = c.dataset.genres?.split(',') || [];
+      genres.forEach(g => genreSet.add(g));
+    });
+    const uniqueGenres = Array.from(genreSet);
+    
+    try {
+      const list = await AniSmokeAPI.getByGenres(uniqueGenres, 1, 16);
+      if (list && list.length > 0) {
+        renderGrid('vibeResultsGrid', list);
+      } else {
+        vibeResultsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;">No matching anime found for the selected vibes.</div>';
+      }
+    } catch (err) {
+      console.error('[VibeSearch] error:', err);
+      vibeResultsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 30px; color: var(--red); font-size: 13px;">Failed to load vibe matches.</div>';
+    }
+  });
+
+  if (clearVibesBtn) {
+    clearVibesBtn.addEventListener('click', () => {
+      vibeContainer.querySelectorAll('.vibe-chip.active').forEach(c => c.classList.remove('active'));
+      vibeResultsSection.style.display = 'none';
+      clearVibesBtn.style.display = 'none';
+    });
+  }
 }
 
 // ── Genre filter ────────────────────────────────────

@@ -46,6 +46,7 @@ const ThemeManager = (() => {
   const THEMES = [
     { id: 'neon',     label: 'Neon Pulse', color: '#131313', icon: '⚡' },
     { id: 'light',    label: 'Light',      color: '#f4f4f8', icon: '☀️' },
+    { id: 'sakura',   label: 'Sakura Night', color: '#211722', icon: '*' },
   ];
   let current = localStorage.getItem('as-theme') || 'neon';
 

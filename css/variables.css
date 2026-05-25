@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    ANISMOKE — NEON PULSE Design System Variables
    Theme: Cyber-Streaming Narrative
-   Themes: neon (default) | light
+   Themes: neon (default) | light | sakura
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Google Fonts ─────────────────────────────────────────── */
@@ -174,4 +174,70 @@
   --glow-primary: 0 0 12px rgba(152,0,208,0.2);
   --glow-primary-lg: 0 0 20px rgba(152,0,208,0.3);
   --shadow-header: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+/* ── SAKURA NIGHT — Anime festival dark mode ───────────────────────────── */
+[data-theme="sakura"] {
+  --bg-primary:       #151018;
+  --bg-secondary:     #211722;
+  --bg-tertiary:      #2b1f2d;
+  --bg-card:          #211722;
+  --bg-elevated:      #35283a;
+  --bg-overlay:       rgba(9, 5, 12, 0.88);
+  --bg-glass:         rgba(255, 214, 232, 0.045);
+  --bg-glass-hover:   rgba(255, 214, 232, 0.085);
+  --bg-deepest:       #0f0a12;
+  --bg-bright:        #463248;
+  --bg-highest:       #403044;
+
+  --text-primary:     #fff3f8;
+  --text-secondary:   #e9c7d7;
+  --text-muted:       #b494a5;
+  --text-inverse:     #180d14;
+  --text-disabled:    #6f5866;
+
+  --border:           rgba(255, 214, 232, 0.1);
+  --border-focus:     rgba(255, 82, 163, 0.62);
+  --border-hover:     rgba(255, 82, 163, 0.42);
+  --border-subtle:    #2a1d29;
+
+  --primary:          #ff52a3;
+  --primary-soft:     #ffc3dd;
+  --primary-dim:      rgba(255, 82, 163, 0.16);
+  --primary-glow:     rgba(255, 82, 163, 0.44);
+  --primary-deep:     #d81b73;
+  --primary-darkest:  #68123c;
+  --on-primary:       #ffffff;
+
+  --cyan:             #66f2d5;
+  --cyan-soft:        #c9fff2;
+  --cyan-dim:         rgba(102, 242, 213, 0.12);
+  --cyan-glow:        rgba(102, 242, 213, 0.42);
+  --cyan-dark:        #197667;
+
+  --pink:             #ff7ab8;
+  --pink-soft:        #ffd1e5;
+  --pink-dim:         rgba(255, 122, 184, 0.16);
+
+  --green:            #7ddc93;
+  --green-dim:        rgba(125, 220, 147, 0.15);
+  --yellow:           #ffd166;
+  --red:              #ffb3b3;
+  --red-dim:          rgba(255, 179, 179, 0.15);
+
+  --gradient-primary:    linear-gradient(135deg, #ff52a3, #66f2d5);
+  --gradient-hero-x:     linear-gradient(to right, #151018 0%, rgba(21,16,24,0.82) 50%, transparent 100%);
+  --gradient-hero-y:     linear-gradient(to top, #151018 0%, rgba(21,16,24,0.55) 42%, transparent 100%);
+  --gradient-card:       linear-gradient(to top, rgba(15, 10, 18, 0.92) 0%, transparent 58%);
+  --gradient-scan:       linear-gradient(to right, transparent, #66f2d5, transparent);
+  --gradient-hud-border: linear-gradient(45deg, #ff52a3 0%, transparent 50%, #66f2d5 100%);
+
+  --shadow-sm:       0 2px 8px rgba(0, 0, 0, 0.42);
+  --shadow-md:       0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg:       0 20px 60px rgba(0, 0, 0, 0.72);
+  --glow-primary:    0 0 12px 2px rgba(255, 82, 163, 0.36);
+  --glow-primary-lg: 0 0 20px 4px rgba(255, 82, 163, 0.52);
+  --glow-cyan:       0 0 10px rgba(102, 242, 213, 0.38);
+  --glow-scan:       0 0 10px #66f2d5;
+  --shadow-header:   0 4px 20px rgba(255, 82, 163, 0.12);
 }
