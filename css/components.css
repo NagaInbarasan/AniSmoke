@@ -1521,7 +1521,9 @@ mark.search-hl {
   .wl-profile { flex-direction: column; text-align: center; }
 }
 @media (max-width: 480px) {
-  .as-search { display: none !important; }
+  .as-header-inner { gap: 8px; }
+  .as-search { flex: 1; min-width: 60px; margin: 0 auto; }
+  .as-search input { padding-left: 32px; font-size: 14px; }
   .as-hero { height: 220px; min-height: 220px; }
   .as-hero-title { font-size: 24px; }
   .auth-body { padding: 20px 20px 24px; }

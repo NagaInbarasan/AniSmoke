@@ -600,6 +600,9 @@ code {
     padding-left: calc(10px + var(--safe-left));
     padding-right: calc(10px + var(--safe-right));
   }
+  .grid-4, .grid-3, .grid-2, .grid-auto { gap: 8px; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
 }
 
 /* ── Reduced motion preference ──────────────────────────── */
