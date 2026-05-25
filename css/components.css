@@ -430,11 +430,12 @@ mark.search-hl {
   .as-sidebar-link span { 
     opacity: 1 !important; font-size: 9px; letter-spacing: 0.06em; 
   }
+  .as-sidebar-link.active {
+    background: rgba(188, 19, 254, 0.15);
+    color: var(--primary);
+  }
   .as-sidebar-link.active::after { 
-    left: 50%; top: 0; bottom: auto;
-    width: 24px; height: 3px;
-    transform: translateX(-50%);
-    border-radius: 0 0 2px 2px;
+    display: none;
   }
   .as-sidebar-pin { display: none; }
   .page-wrap { margin-left: 0 !important; padding-bottom: 70px; }
@@ -1522,8 +1523,7 @@ mark.search-hl {
 }
 @media (max-width: 480px) {
   .as-header-inner { gap: 8px; }
-  .as-search { flex: 1; min-width: 60px; margin: 0 auto; }
-  .as-search input { padding-left: 32px; font-size: 14px; }
+  .as-search { display: none !important; }
   .as-hero { height: 220px; min-height: 220px; }
   .as-hero-title { font-size: 24px; }
   .auth-body { padding: 20px 20px 24px; }
