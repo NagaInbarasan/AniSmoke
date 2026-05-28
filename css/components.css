@@ -830,6 +830,7 @@ mark.search-hl {
   position: relative; z-index: 2;
   height: 100%;
   display: flex; align-items: center;
+  padding-left: var(--sidebar-collapsed);
 }
 .as-hero-content {
   max-width: 600px;
