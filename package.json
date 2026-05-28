@@ -5,13 +5,9 @@
   "main": "js/app.js",
   "scripts": {
     "build": "echo 'AniSmoke ready'",
-    "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1",
-    "test": "npx http-server . -a 127.0.0.1 -p 5501 -c-1 --open /tests/index.html"
+    "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "puppeteer-core": "^25.1.0"
-  }
+  "license": "ISC"
 }
