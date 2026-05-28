@@ -6,7 +6,7 @@
      • CDN scripts (Supabase SDK)      → Cache-First
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_NAME   = 'anismoke-shell-v11';
+const CACHE_NAME   = 'anismoke-shell-v12';
 const OFFLINE_URL  = '/404.html';
 
 // Static assets that form the app shell
@@ -125,6 +125,12 @@ self.addEventListener('fetch', event => {
 
   // ── Same-origin ──
   if (url.origin === self.location.origin) {
+    // Dev Mode: Bypass cache on localhost/127.0.0.1 for Live Server
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      event.respondWith(safeRespond(() => fetch(request)));
+      return;
+    }
+
     // Navigation requests (HTML pages): network-first so latest code always loads
     if (request.mode === 'navigate') {
       event.respondWith(safeRespond(() => fetchNetworkFirstWithOfflineFallback(request)));
