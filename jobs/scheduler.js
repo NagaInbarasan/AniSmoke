@@ -177,7 +177,7 @@
     const byMedia = {};
 
     schedules.forEach(ep => {
-      if (ep.airingAt <= nowSec) return;  // past episodes ignored here
+      if (ep.airingAt <= nowSec - 10 * 60) return;  // ignore episodes aired more than 10 mins ago
       if (!byMedia[ep.mediaId] || ep.airingAt < byMedia[ep.mediaId].airingAt) {
         byMedia[ep.mediaId] = ep;
       }

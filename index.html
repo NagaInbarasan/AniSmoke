@@ -47,9 +47,8 @@
     .hero-sk-btn   { width: 140px; height: 44px; border-radius: 4px; }
     .hero-sk-btn2  { width: 120px; height: 44px; border-radius: 4px; }
 
-    /* Filter chips row */
-    .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .filter-row::-webkit-scrollbar { display: none; }
+
+
 
     /* Top 10 sidebar */
     .sidebar-widget {
@@ -226,13 +225,10 @@
     <span>Pin Sidebar</span>
   </div>
   <div class="as-sidebar-footer">
-    <div class="theme-wrap" style="position:relative;width:100%">
-      <button class="as-sidebar-link theme-btn" data-action="theme-toggle" style="width:100%;border:none;background:none">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        <span>Toggle Theme</span>
-      </button>
-      <div class="theme-panel" id="themePanel"></div>
-    </div>
+    <button class="as-sidebar-link theme-btn" data-action="theme-change" style="width:100%;border:none;background:none;cursor:pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      <span>Theme</span>
+    </button>
     <button class="as-sidebar-link" data-auth="guest" data-action="open-auth" style="width:100%;border:none;background:none;cursor:pointer">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       <span>Sign In</span>
@@ -328,9 +324,9 @@
   </div>
   <div class="mobile-menu-section">
     <div class="mobile-menu-label">Settings</div>
-    <div class="mobile-menu-link" data-action="theme-toggle">
+    <div class="mobile-menu-link" data-action="theme-change" style="cursor:pointer">
       <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
-      Toggle Theme
+      <span>Theme</span>
     </div>
   </div>
 </div>
@@ -480,27 +476,34 @@
         </div>
       </section>
 
-      <!-- Browse by Genre -->
+      <!-- Browse by Genre (multi-select) -->
       <section class="section-sm">
         <div class="section-header">
-          <h2 class="section-title">Browse by Genre</h2>
-          <a href="browse.html" class="section-link">All Genres →</a>
+          <h2 class="section-title">Browse by Genre
+            <span id="homeGenreBadge" style="display:none;margin-left:8px;background:var(--primary);color:#fff;font-size:9px;font-weight:900;padding:2px 8px;border-radius:99px;vertical-align:middle;">0</span>
+          </h2>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span id="homeGenreClearBtn" style="display:none;cursor:pointer;font-size:10px;font-weight:800;font-family:var(--font-headline);text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);transition:color 0.15s" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">✕ Clear</span>
+            <a id="homeGenreBrowseLink" href="browse.html" class="section-link">Browse All →</a>
+          </div>
         </div>
-        <div class="filter-row" id="genreChips">
-          <span class="tag active" data-genre="">All</span>
+        <!-- Multi-select genre chips -->
+        <div class="filter-row" id="genreChips" style="flex-wrap:wrap;gap:6px">
           <span class="tag" data-genre="Action">Action</span>
-          <span class="tag" data-genre="Romance">Romance</span>
+          <span class="tag" data-genre="Adventure">Adventure</span>
           <span class="tag" data-genre="Comedy">Comedy</span>
           <span class="tag" data-genre="Drama">Drama</span>
           <span class="tag" data-genre="Fantasy">Fantasy</span>
-          <span class="tag" data-genre="Sci-Fi">Sci-Fi</span>
           <span class="tag" data-genre="Horror">Horror</span>
-          <span class="tag" data-genre="Mystery">Mystery</span>
-          <span class="tag" data-genre="Sports">Sports</span>
-          <span class="tag" data-genre="Psychological">Psychological</span>
-          <span class="tag" data-genre="Slice of Life">Slice of Life</span>
           <span class="tag" data-genre="Mecha">Mecha</span>
-          <span class="tag" data-genre="Adventure">Adventure</span>
+          <span class="tag" data-genre="Mystery">Mystery</span>
+          <span class="tag" data-genre="Psychological">Psychological</span>
+          <span class="tag" data-genre="Romance">Romance</span>
+          <span class="tag" data-genre="Sci-Fi">Sci-Fi</span>
+          <span class="tag" data-genre="Slice of Life">Slice of Life</span>
+          <span class="tag" data-genre="Sports">Sports</span>
+          <span class="tag" data-genre="Supernatural">Supernatural</span>
+          <span class="tag" data-genre="Thriller">Thriller</span>
         </div>
         <div style="margin-top:16px">
           <div class="grid-auto" id="genreGrid">
@@ -690,7 +693,7 @@
         <span>System Status: Online</span>
       </div>
       <div class="footer-copyright">© 2026 AniSmoke. All rights reserved.</div>
-      <div class="footer-version">v2.0.0 // NEON_PULSE_BUILD</div>
+      <div class="footer-version">v3.1.0 // PWA_NOTIFICATIONS_BUILD</div>
     </div>
   </div>
 </footer>
@@ -710,6 +713,7 @@
 <script src="js/hooks/useSearch.js"></script>
 <script src="js/search.js"></script>
 <script src="js/services/notification.js"></script>
+<script src="js/services/subscription.js"></script>
 <script src="js/airing.js"></script>
 <script src="jobs/scheduler.js"></script>
 <script src="js/app.js"></script>
@@ -970,14 +974,32 @@ if (vibeContainer && vibeResultsSection && vibeResultsGrid) {
   }
 }
 
-// ── Genre filter ────────────────────────────────────
-document.getElementById('genreChips').addEventListener('click', async e => {
-  const chip = e.target.closest('.tag');
-  if (!chip) return;
-  document.querySelectorAll('#genreChips .tag').forEach(c=>c.classList.remove('active'));
-  chip.classList.add('active');
-  const genre = chip.dataset.genre;
-  const grid  = document.getElementById('genreGrid');
+// ── Genre filter (multi-select) ─────────────────────
+let homeSelectedGenres = [];
+
+function homeUpdateGenreUI() {
+  const badge    = document.getElementById('homeGenreBadge');
+  const clearBtn = document.getElementById('homeGenreClearBtn');
+  const browseLink = document.getElementById('homeGenreBrowseLink');
+  const n = homeSelectedGenres.length;
+
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-block' : 'none';
+  clearBtn.style.display = n > 0 ? 'inline-block' : 'none';
+
+  // Update Browse All link to pre-apply genres
+  browseLink.href = n > 0
+    ? `browse.html?genre=${encodeURIComponent(homeSelectedGenres[0])}`
+    : 'browse.html';
+
+  // Sync chip active states
+  document.querySelectorAll('#genreChips .tag').forEach(c => {
+    c.classList.toggle('active', homeSelectedGenres.includes(c.dataset.genre));
+  });
+}
+
+async function homeGenreFetch() {
+  const grid = document.getElementById('genreGrid');
   grid.innerHTML = `
     <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
     <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
@@ -986,8 +1008,35 @@ document.getElementById('genreChips').addEventListener('click', async e => {
     <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
     <div class="skeleton-card"><div class="skeleton skeleton-thumb"></div><div class="skeleton skeleton-line w80"></div></div>
   `;
-  const list = genre ? await AniSmokeAPI.getByGenre(genre,1,12) : await AniSmokeAPI.getPopular(1,12);
-  renderGrid('genreGrid', list);
+  try {
+    const list = homeSelectedGenres.length > 0
+      ? await AniSmokeAPI.getByGenres(homeSelectedGenres, 1, 12)
+      : await AniSmokeAPI.getPopular(1, 12);
+    renderGrid('genreGrid', list);
+  } catch (err) {
+    console.error('[HomeGenre]', err);
+    grid.innerHTML = '<div style="padding:20px;color:var(--text-muted);font-size:13px">Failed to load. Try again.</div>';
+  }
+}
+
+document.getElementById('genreChips').addEventListener('click', e => {
+  const chip = e.target.closest('.tag');
+  if (!chip) return;
+  const genre = chip.dataset.genre;
+  if (!genre) return; // no empty genre tags anymore
+  if (homeSelectedGenres.includes(genre)) {
+    homeSelectedGenres = homeSelectedGenres.filter(g => g !== genre);
+  } else {
+    homeSelectedGenres.push(genre);
+  }
+  homeUpdateGenreUI();
+  homeGenreFetch();
+});
+
+document.getElementById('homeGenreClearBtn').addEventListener('click', () => {
+  homeSelectedGenres = [];
+  homeUpdateGenreUI();
+  homeGenreFetch();
 });
 
 // ── Main init ────────────────────────────────────────
@@ -1105,5 +1154,20 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- ═══════════════ BOTTOM NAVIGATION (MOBILE) ═══════════════ -->
+<nav class="as-bottom-nav">
+  <a href="index.html" class="as-nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </a>
+  <a href="browse.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </a>
+  <a href="watchlist.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+  </a>
+  <button class="as-nav-item" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
 </body>
 </html>

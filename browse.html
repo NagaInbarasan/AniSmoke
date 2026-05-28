@@ -459,13 +459,10 @@
     <span>Pin Sidebar</span>
   </div>
   <div class="as-sidebar-footer">
-    <div class="theme-wrap" style="position:relative;width:100%">
-      <button class="as-sidebar-link theme-btn" data-action="theme-toggle" style="width:100%;border:none;background:none">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        <span>Toggle Theme</span>
-      </button>
-      <div class="theme-panel" id="themePanel"></div>
-    </div>
+    <button class="as-sidebar-link theme-btn" data-action="theme-change" style="width:100%;border:none;background:none;cursor:pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      <span>Theme</span>
+    </button>
     <button class="as-sidebar-link" data-auth="guest" data-action="open-auth" style="width:100%;border:none;background:none;cursor:pointer">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       <span>Sign In</span>
@@ -542,7 +539,11 @@
     <a href="watchlist.html" class="mobile-menu-link"><span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span> Watchlist</a>
   </div>
   <div class="mobile-menu-section">
-    <div id="themePanelMobile" class="theme-panel" style="display:block;position:static;box-shadow:none;border:none;padding:0;background:transparent;width:auto"></div>
+    <div class="mobile-menu-label">Settings</div>
+    <div class="mobile-menu-link" data-action="theme-change" style="cursor:pointer">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+      <span>Theme</span>
+    </div>
   </div>
 </nav>
 
@@ -826,7 +827,7 @@
         <span>System Status: Online</span>
       </div>
       <div class="footer-copyright">© 2026 AniSmoke. All rights reserved.</div>
-      <div class="footer-version">v2.0.0 // NEON_PULSE_BUILD</div>
+      <div class="footer-version">v3.1.0 // PWA_NOTIFICATIONS_BUILD</div>
     </div>
   </div>
 </footer>
@@ -845,6 +846,7 @@
 <script src="js/hooks/useSearch.js"></script>
 <script src="js/search.js"></script>
 <script src="js/services/notification.js"></script>
+<script src="js/services/subscription.js"></script>
 <script src="js/airing.js"></script>
 <script src="jobs/scheduler.js"></script>
 <script src="js/app.js"></script>
@@ -858,20 +860,20 @@
   let currentResults = [];
 
   const state = {
-    sort:   'TRENDING_DESC',
-    genre:  '',
-    format: '',
-    year:   '',
-    status: '',
+    sort:     'TRENDING_DESC',
+    genres:   [],          // ← multi-genre array (replaces single genre)
+    format:   '',
+    year:     '',
+    status:   '',
     minScore: '',
     episodes: '',
-    query:  '',
+    query:    '',
   };
 
   /* ─── URL params on load ──────── */
   const params = new URLSearchParams(location.search);
   if (params.get('q'))      { state.query  = params.get('q'); document.getElementById('browseSearch').value = state.query; }
-  if (params.get('genre'))  { state.genre  = params.get('genre'); document.getElementById('genreSelect').value = state.genre; }
+  if (params.get('genre'))  { state.genres = [params.get('genre')]; document.getElementById('genreSelect').value = params.get('genre'); }
   if (params.get('sort'))   {
     const m = { trending:'TRENDING_DESC', popular:'POPULARITY_DESC' };
     state.sort = m[params.get('sort')] || 'TRENDING_DESC';
@@ -912,7 +914,8 @@
 
       const vars = { sort: [state.sort], page, perPage: 24 };
       if (state.query)  vars.search = state.query;
-      if (state.genre)  vars.genre  = state.genre;
+      if (state.genres.length === 1) vars.genre  = state.genres[0];  // single: use genre param
+      if (state.genres.length > 1)  vars.genres = state.genres;      // multi:  use genre_in
       if (state.format) vars.format = state.format;
       if (state.year)   vars.year   = parseInt(state.year);
       if (state.status) vars.status = state.status;
@@ -1022,7 +1025,8 @@
     const wrap = document.getElementById('activeFilters');
     wrap.innerHTML = '';
     const active = [];
-    if (state.genre)  active.push({ key: 'genre',  label: state.genre });
+    // Each selected genre gets its own removable chip
+    state.genres.forEach(g => active.push({ key: 'genre', genreVal: g, label: g }));
     if (state.format) active.push({ key: 'format', label: state.format });
     if (state.year)   active.push({ key: 'year',   label: state.year });
     if (state.status) active.push({ key: 'status', label: state.status });
@@ -1034,7 +1038,15 @@
       const chip = document.createElement('span');
       chip.className = 'active-filter-tag';
       chip.innerHTML = `${f.label} <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-      chip.onclick = () => clearFilter(f.key);
+      if (f.key === 'genre') {
+        chip.onclick = () => {
+          state.genres = state.genres.filter(g => g !== f.genreVal);
+          document.getElementById('genreSelect').value = state.genres[0] || '';
+          fetchResults(true);
+        };
+      } else {
+        chip.onclick = () => clearFilter(f.key);
+      }
       wrap.appendChild(chip);
     });
 
@@ -1047,33 +1059,41 @@
       c.classList.toggle('active', c.dataset.filterStatus === state.status)
     );
     document.querySelectorAll('#genreChips .genre-chip').forEach(c =>
-      c.classList.toggle('active', c.dataset.filterGenre === state.genre)
+      c.classList.toggle('active', state.genres.includes(c.dataset.filterGenre))
     );
     document.getElementById('clearFilters').classList.toggle('visible', hasAny);
   }
 
   function clearFilter(key) {
-    state[key] = '';
-    if (key === 'genre')  document.getElementById('genreSelect').value  = '';
-    if (key === 'format') document.getElementById('formatSelect').value = '';
-    if (key === 'year')   document.getElementById('yearSelect').value   = '';
-    if (key === 'status') document.getElementById('statusSelect').value = '';
-    if (key === 'minScore') document.getElementById('scoreSelect').value = '';
-    if (key === 'episodes') document.getElementById('episodesSelect').value = '';
-    if (key === 'query')  { document.getElementById('browseSearch').value = ''; document.getElementById('browseClear').style.display = 'none'; }
+    if (key === 'genre')  { state.genres = []; document.getElementById('genreSelect').value = ''; }
+    else {
+      state[key] = '';
+      if (key === 'format') document.getElementById('formatSelect').value = '';
+      if (key === 'year')   document.getElementById('yearSelect').value   = '';
+      if (key === 'status') document.getElementById('statusSelect').value = '';
+      if (key === 'minScore') document.getElementById('scoreSelect').value = '';
+      if (key === 'episodes') document.getElementById('episodesSelect').value = '';
+      if (key === 'query')  { document.getElementById('browseSearch').value = ''; document.getElementById('browseClear').style.display = 'none'; }
+    }
     fetchResults(true);
   }
 
   /* ─── Filter events ──────────── */
-  document.getElementById('sortSelect').onchange   = e => { state.sort   = e.target.value; fetchResults(true); };
-  document.getElementById('genreSelect').onchange  = e => { state.genre  = e.target.value; fetchResults(true); };
+  document.getElementById('sortSelect').onchange   = e => { state.sort = e.target.value; fetchResults(true); };
+  document.getElementById('genreSelect').onchange  = e => {
+    const val = e.target.value;
+    if (!val) { state.genres = []; }
+    else if (!state.genres.includes(val)) { state.genres = [val]; }
+    fetchResults(true);
+  };
   document.getElementById('formatSelect').onchange = e => { state.format = e.target.value; fetchResults(true); };
   document.getElementById('yearSelect').onchange   = e => { state.year   = e.target.value; fetchResults(true); };
   document.getElementById('statusSelect').onchange = e => { state.status = e.target.value; fetchResults(true); };
   document.getElementById('scoreSelect').onchange  = e => { state.minScore = e.target.value; fetchResults(true); };
   document.getElementById('episodesSelect').onchange = e => { state.episodes = e.target.value; fetchResults(true); };
   document.getElementById('clearFilters').onclick  = () => {
-    Object.keys(state).forEach(k => state[k] = k === 'sort' ? 'TRENDING_DESC' : '');
+    state.genres = []; state.format = ''; state.year = ''; state.status = '';
+    state.minScore = ''; state.episodes = ''; state.query = ''; state.sort = 'TRENDING_DESC';
     ['genre','format','year','status','score','episodes'].forEach(k => document.getElementById(k+'Select').value = '');
     document.getElementById('sortSelect').value = 'TRENDING_DESC';
     document.getElementById('browseSearch').value = '';
@@ -1103,23 +1123,54 @@
     fetchResults(true);
   });
 
-  /* ─── Init genre sidebar chips ─── */
+  /* ─── Init genre sidebar chips (multi-select) ─── */
   const GENRES = ['Action','Adventure','Comedy','Drama','Fantasy','Horror',
     'Mecha','Mystery','Psychological','Romance','Sci-Fi','Slice of Life',
     'Sports','Supernatural','Thriller'];
   const genreChipGrid = document.getElementById('genreChips');
+
+  // Genre count badge in DB Filter header
+  const dbHeader = document.querySelector('.db-filter-header');
+  const genreBadge = document.createElement('span');
+  genreBadge.id = 'genreBadge';
+  genreBadge.style.cssText = 'margin-left:auto;background:var(--primary);color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:99px;display:none';
+  dbHeader.appendChild(genreBadge);
+
+  function updateGenreBadge() {
+    const n = state.genres.length;
+    genreBadge.textContent = n;
+    genreBadge.style.display = n > 0 ? 'inline-block' : 'none';
+  }
+
   GENRES.forEach(g => {
     const c = document.createElement('span');
     c.className = 'genre-chip';
     c.dataset.filterGenre = g;
     c.textContent = g;
     c.onclick = () => {
-      state.genre = state.genre === g ? '' : g;
-      document.getElementById('genreSelect').value = state.genre;
+      // Toggle genre in/out of array
+      if (state.genres.includes(g)) {
+        state.genres = state.genres.filter(x => x !== g);
+      } else {
+        state.genres.push(g);
+      }
+      // Sync the dropdown to first selected (for URL compat)
+      document.getElementById('genreSelect').value = state.genres[0] || '';
+      updateGenreBadge();
       fetchResults(true);
     };
     genreChipGrid.appendChild(c);
   });
+
+  // Patch updateActiveFilters to also update badge
+  const _origUpdateActiveFilters = updateActiveFilters;
+  // (badge updated below via wrapper)
+  const _patchedUpdate = () => { updateActiveFilters(); updateGenreBadge(); };
+  // Re-wire fetchResults to call patched version via event
+  window.addEventListener('as:filters-updated', updateGenreBadge);
+
+  // Initial badge state from URL params
+  updateGenreBadge();
 
   /* Sidebar format chips */
   document.querySelectorAll('.genre-chip[data-filter-format]').forEach(c => {
@@ -1158,5 +1209,20 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- ═══════════════ BOTTOM NAVIGATION (MOBILE) ═══════════════ -->
+<nav class="as-bottom-nav">
+  <a href="index.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </a>
+  <a href="browse.html" class="as-nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </a>
+  <a href="watchlist.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+  </a>
+  <button class="as-nav-item" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
 </body>
 </html>

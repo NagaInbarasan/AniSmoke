@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sakura">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AniSmoke — Test Suite Dashboard</title>
+  <!-- Load fonts and theme variables -->
+  <link rel="stylesheet" href="../css/variables.css">
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to bottom, var(--bg-secondary), transparent);
+      border-bottom: 1px solid var(--border);
+      padding: var(--gutter) var(--margin-edge);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-header);
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo img {
+      height: 32px;
+    }
+
+    .header-logo h1 {
+      font-family: var(--font-headline);
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.5px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .header-tag {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--cyan);
+      background: var(--cyan-dim);
+      padding: 4px 8px;
+      border: 1px solid rgba(102, 242, 213, 0.2);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: var(--stack-md) var(--margin-edge);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: var(--stack-md);
+    }
+
+    /* ── Dashboard Stats ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--gutter);
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: var(--gutter);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-card.cyan::after {
+      background: var(--cyan);
+    }
+
+    .stat-card.green::after {
+      background: var(--green);
+    }
+
+    .stat-card.red::after {
+      background: var(--red);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--font-headline);
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    /* ── Controls ── */
+    .controls-panel {
+      background: var(--bg-glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      padding: var(--gutter);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--gutter);
+      flex-wrap: wrap;
+    }
+
+    .button-group {
+      display: flex;
+      gap: var(--stack-sm);
+    }
+
+    button {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      font-family: var(--font-headline);
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 13px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background: var(--bg-bright);
+      border-color: var(--text-secondary);
+    }
+
+    button.primary-btn {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button.primary-btn:hover {
+      background: #ff7ebb;
+      box-shadow: var(--glow-primary-lg);
+    }
+
+    /* ── Test Suite Body ── */
+    .suite-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gutter);
+    }
+
+    .group-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .group-header {
+      background: var(--bg-tertiary);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .group-title {
+      font-family: var(--font-headline);
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .group-badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .group-badge.passed {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .group-badge.failed {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .group-body {
+      padding: 0 20px;
+      max-height: 1000px;
+      transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+    }
+
+    .group-body.collapsed {
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .test-item {
+      padding: var(--gutter) 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .test-item:last-child {
+      border-bottom: none;
+    }
+
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--gutter);
+    }
+
+    .test-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .test-name {
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .test-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .test-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .status-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-icon.pending {
+      background: var(--text-muted);
+      box-shadow: 0 0 8px var(--text-muted);
+    }
+
+    .status-icon.passed {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .status-icon.failed {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    .test-time {
+      color: var(--text-muted);
+    }
+
+    /* Assertions */
+    .assertions-list {
+      margin-top: 8px;
+      background: var(--bg-deepest);
+      border: 1px solid var(--border-subtle);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .assertion-item {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 6px;
+      border-left: 2px solid var(--green);
+      background: rgba(125, 220, 147, 0.02);
+    }
+
+    .assertion-item.failed {
+      border-left-color: var(--red);
+      background: rgba(255, 179, 179, 0.02);
+    }
+
+    .assertion-header {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+    }
+
+    .assertion-details {
+      color: var(--red);
+      font-size: 11px;
+      margin-top: 4px;
+      white-space: pre-wrap;
+    }
+
+    /* ── Logs Panel ── */
+    .logs-panel {
+      background: var(--bg-deepest);
+      border: 1px solid var(--border);
+      padding: var(--gutter);
+    }
+
+    .logs-header {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 14px;
+    }
+
+    .logs-body {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+    }
+
+    .log-type {
+      font-weight: bold;
+    }
+
+    .log-type.info { color: var(--cyan); }
+    .log-type.warn { color: var(--yellow); }
+    .log-type.error { color: var(--red); }
+    .log-type.success { color: var(--green); }
+
+    .log-msg {
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-logo">
+      <img src="../assets/logo.png" alt="AniSmoke" onerror="this.style.display='none'">
+      <h1>AniSmoke Test Suite</h1>
+    </div>
+    <div class="header-tag">SANDBOX RUNNER</div>
+  </header>
+
+  <main>
+    <!-- Controls Panel -->
+    <section class="controls-panel">
+      <div class="button-group">
+        <button id="run-btn" class="primary-btn">▶ Run All Tests</button>
+        <button id="clear-btn">Clear Logs & Storage</button>
+      </div>
+      <div class="header-tag" id="test-run-status">Ready</div>
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <div class="stat-card cyan">
+        <div class="stat-label">Total Tests</div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Passed</div>
+        <div class="stat-value" id="stat-passed">0</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Failed</div>
+        <div class="stat-value" id="stat-failed">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pass Rate</div>
+        <div class="stat-value" id="stat-rate">0%</div>
+      </div>
+    </section>
+
+    <!-- Test Suites List -->
+    <section class="suite-container" id="suite-list">
+      <!-- Test groups will be rendered here dynamically -->
+    </section>
+
+    <!-- Console Logs -->
+    <section class="logs-panel">
+      <div class="logs-header">
+        <span>Runner Logs</span>
+        <button id="clear-logs-btn" style="padding: 4px 8px; font-size: 11px;">Clear</button>
+      </div>
+      <div class="logs-body" id="logs-container">
+        <div class="log-line">
+          <span class="log-time">[00:00:00]</span>
+          <span class="log-type info">[INFO]</span>
+          <span class="log-msg">Test runner initialized. Ready to execute suite.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Load the scripts being tested -->
+  <script src="../js/services/notification.js"></script>
+  <script src="../jobs/scheduler.js"></script>
+
+  <!-- Load the test script -->
+  <script src="tests.js"></script>
+</body>
+</html>

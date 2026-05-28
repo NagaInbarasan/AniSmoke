@@ -44,9 +44,16 @@ window.dispatchEvent(new CustomEvent('as:toast-ready'));
    ════════════════════════════════ */
 const ThemeManager = (() => {
   const THEMES = [
-    { id: 'neon',     label: 'Neon Pulse', color: '#131313', icon: '⚡' },
-    { id: 'light',    label: 'Light',      color: '#f4f4f8', icon: '☀️' },
-    { id: 'sakura',   label: 'Sakura Night', color: '#211722', icon: '*' },
+    { id: 'neon',       label: 'Neon Pulse',     color: '#131313', icon: '⚡' },
+    { id: 'light',      label: 'Light',          color: '#f4f4f8', icon: '☀️' },
+    { id: 'sakura',     label: 'Sakura Night',   color: '#211722', icon: '🌸' },
+    { id: 'ocean',      label: 'Deep Ocean',     color: '#0c1929', icon: '🌊' },
+    { id: 'midnight',   label: 'Midnight Ember', color: '#1a1008', icon: '🔥' },
+    { id: 'forest',     label: 'Forest Shrine',  color: '#0f1a10', icon: '🌿' },
+    { id: 'blood',      label: 'Blood Moon',     color: '#1a0808', icon: '🩸' },
+    { id: 'ice',        label: 'Frost Crystal',  color: '#0a1929', icon: '❄️' },
+    { id: 'retro',      label: 'Retro Wave',     color: '#1a0a2e', icon: '🎵' },
+    { id: 'monochrome', label: 'Monochrome',     color: '#1a1a1a', icon: '⬜' },
   ];
   let current = localStorage.getItem('as-theme') || 'neon';
 
@@ -54,50 +61,39 @@ const ThemeManager = (() => {
     current = theme;
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('as-theme', theme);
-    // Update picker UI
-    document.querySelectorAll('.theme-option').forEach(o => {
-      o.classList.toggle('active', o.dataset.theme === theme);
-    });
+    
+    // Dynamic text/icon update for the Change Theme buttons
+    const activeTheme = THEMES.find(t => t.id === theme);
+    if (activeTheme) {
+      document.querySelectorAll('[data-action="theme-change"]').forEach(btn => {
+        const textSpan = btn.querySelector('span:not(.mobile-menu-icon)');
+        if (textSpan) {
+          textSpan.textContent = `Theme: ${activeTheme.icon} ${activeTheme.label}`;
+        }
+      });
+    }
   }
 
-  function buildPicker(container) {
-    if (!container) return;
-    container.innerHTML = `<div class="theme-panel-title">Appearance</div>`;
-    THEMES.forEach(t => {
-      const el = document.createElement('div');
-      el.className = `theme-option${t.id === current ? ' active' : ''}`;
-      el.dataset.theme = t.id;
-      el.innerHTML = `
-        <span class="theme-swatch" style="background:${t.color};border-color:${t.id===current?'var(--accent)':'transparent'}"></span>
-        <span>${t.icon} ${t.label}</span>
-      `;
-      el.onclick = () => {
-        apply(t.id);
-        Toast.success(`Theme: ${t.label}`);
-      };
-      container.appendChild(el);
-    });
+  function cycle() {
+    const currentIndex = THEMES.findIndex(t => t.id === current);
+    const nextIndex = (currentIndex + 1) % THEMES.length;
+    apply(THEMES[nextIndex].id);
+    Toast.success(`Theme: ${THEMES[nextIndex].label}`);
   }
 
   function init() {
     apply(current);
-    // Build all pickers on page
-    document.querySelectorAll('.theme-panel').forEach(buildPicker);
-    // Toggle button
-    document.querySelectorAll('[data-action="theme-toggle"]').forEach(btn => {
+    
+    // Bind all Change Theme buttons on the page to cycle themes
+    document.querySelectorAll('[data-action="theme-change"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const panel = btn.nextElementSibling || btn.closest('.theme-wrap')?.querySelector('.theme-panel');
-        if (panel) panel.classList.toggle('open');
+        cycle();
       });
-    });
-    // Close on outside click
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.theme-panel.open').forEach(p => p.classList.remove('open'));
     });
   }
 
-  return { init, apply, current: () => current, themes: THEMES };
+  return { init, apply, cycle, current: () => current, themes: THEMES };
 })();
 
 /* ════════════════════════════════

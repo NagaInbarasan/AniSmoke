@@ -133,7 +133,7 @@ code {
    ═══════════════════════════════════════════════════════════ */
 .container {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1800px;
   margin: 0 auto;
   padding-left: calc(var(--margin-edge) + var(--safe-left));
   padding-right: calc(var(--margin-edge) + var(--safe-right));
@@ -147,8 +147,15 @@ code {
 .grid-2  { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gutter); }
 .grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gutter); }
 .grid-4  { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
-.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--gutter); }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--gutter); }
 .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--gutter); }
+
+@media (min-width: 1440px) {
+  .grid-auto { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 1920px) {
+  .grid-auto { grid-template-columns: repeat(8, 1fr); }
+}
 
 /* ── Flex helpers ───────────────────────────────────────── */
 .flex         { display: flex; }
@@ -502,6 +509,7 @@ code {
   color: var(--text-secondary);
   transition: all var(--transition);
   cursor: pointer;
+  user-select: none;
 }
 .tag:hover {
   border-color: var(--primary);
@@ -514,6 +522,23 @@ code {
   color: var(--on-primary);
   box-shadow: var(--glow-primary);
 }
+/* Multi-select indicator: checkmark prefix on active tags */
+.tag.active::before {
+  content: '✓ ';
+  font-weight: 900;
+  opacity: 0.85;
+}
+
+/* Genre chip row — wraps on home page, scrolls on browse */
+.filter-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.filter-row.wrap { flex-wrap: wrap; overflow-x: visible; }
 
 /* ═══════════════════════════════════════════════════════════
    TOAST — Neon notifications

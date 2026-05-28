@@ -566,13 +566,10 @@
     <span>Pin Sidebar</span>
   </div>
   <div class="as-sidebar-footer">
-    <div class="theme-wrap" style="position:relative;width:100%">
-      <button class="as-sidebar-link theme-btn" data-action="theme-toggle" style="width:100%;border:none;background:none">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        <span>Toggle Theme</span>
-      </button>
-      <div class="theme-panel" id="themePanel"></div>
-    </div>
+    <button class="as-sidebar-link theme-btn" data-action="theme-change" style="width:100%;border:none;background:none;cursor:pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      <span>Theme</span>
+    </button>
     <button class="as-sidebar-link" data-auth="guest" data-action="open-auth" style="width:100%;border:none;background:none;cursor:pointer">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
       <span>Sign In</span>
@@ -649,7 +646,11 @@
     <a href="watchlist.html" class="mobile-menu-link active"><span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg></span> Watchlist</a>
   </div>
   <div class="mobile-menu-section">
-    <div id="themePanelMobile" class="theme-panel" style="display:block;position:static;box-shadow:none;border:none;padding:0;background:transparent;width:auto"></div>
+    <div class="mobile-menu-label">Settings</div>
+    <div class="mobile-menu-link" data-action="theme-change" style="cursor:pointer">
+      <span class="mobile-menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></span>
+      <span>Theme</span>
+    </div>
   </div>
 </nav>
 
@@ -868,7 +869,7 @@
         <span>System Status: Online</span>
       </div>
       <div class="footer-copyright">© 2026 AniSmoke. All rights reserved.</div>
-      <div class="footer-version">v2.0.0 // NEON_PULSE_BUILD</div>
+      <div class="footer-version">v3.1.0 // PWA_NOTIFICATIONS_BUILD</div>
     </div>
   </div>
 </footer>
@@ -887,6 +888,7 @@
 <script src="js/hooks/useSearch.js"></script>
 <script src="js/search.js"></script>
 <script src="js/services/notification.js"></script>
+<script src="js/services/subscription.js"></script>
 <script src="js/airing.js"></script>
 <script src="jobs/scheduler.js"></script>
 <script src="js/app.js"></script>
@@ -1168,5 +1170,20 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- ═══════════════ BOTTOM NAVIGATION (MOBILE) ═══════════════ -->
+<nav class="as-bottom-nav">
+  <a href="index.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </a>
+  <a href="browse.html" class="as-nav-item">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  </a>
+  <a href="watchlist.html" class="as-nav-item active">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
+  </a>
+  <button class="as-nav-item" onclick="document.getElementById('mobileMenu').classList.add('open')">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
 </body>
 </html>

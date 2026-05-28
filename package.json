@@ -1,15 +1,17 @@
 {
   "name": "anismoke",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "description": "AniSmoke - Premium Anime Streaming Platform",
   "main": "js/app.js",
   "scripts": {
     "build": "echo 'AniSmoke ready'",
-    "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1"
+    "dev": "npx http-server . -a 127.0.0.1 -p 5500 -c-1",
+    "test": "npx http-server . -a 127.0.0.1 -p 5501 -c-1 --open /tests/index.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "puppeteer-core": "^25.1.0"
+  }
 }

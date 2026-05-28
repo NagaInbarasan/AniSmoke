@@ -428,26 +428,54 @@ const AniSmokeAPI = (() => {
     /* ── Browse (Unified Filter Query) ─────────────────────── */
     browse(vars) {
       return swr(`as-browse-${JSON.stringify(vars)}`, async () => {
-        const d = await gql(`query($search:String,$sort:[MediaSort],$genre:String,$format:MediaFormat,$year:Int,$status:MediaStatus,$page:Int,$perPage:Int,$minScore:Int,$epGreater:Int,$epLesser:Int){
-          Page(page:$page,perPage:$perPage){
-            pageInfo{hasNextPage}
-            media(type:ANIME,search:$search,sort:$sort,genre:$genre,format:$format,seasonYear:$year,status:$status,averageScore_greater:$minScore,episodes_greater:$epGreater,episodes_lesser:$epLesser){
-              id title{romaji english native}
-              coverImage{large extraLarge}
-              bannerImage description(asHtml:false)
-              genres episodes averageScore popularity
-              format status season seasonYear
-              nextAiringEpisode{episode}
-              studios(isMain:true){nodes{name}}
-              duration
-            }
-          }
-        }`, vars);
+        // Multi-genre: use genre_in when genres array is provided
+        const useMultiGenre = Array.isArray(vars.genres) && vars.genres.length > 0;
+        const d = await gql(useMultiGenre
+          ? `query($search:String,$sort:[MediaSort],$genres:[String],$format:MediaFormat,$year:Int,$status:MediaStatus,$page:Int,$perPage:Int,$minScore:Int,$epGreater:Int,$epLesser:Int){
+              Page(page:$page,perPage:$perPage){
+                pageInfo{hasNextPage}
+                media(type:ANIME,search:$search,sort:$sort,genre_in:$genres,format:$format,seasonYear:$year,status:$status,averageScore_greater:$minScore,episodes_greater:$epGreater,episodes_lesser:$epLesser){
+                  id title{romaji english native}
+                  coverImage{large extraLarge}
+                  bannerImage description(asHtml:false)
+                  genres episodes averageScore popularity
+                  format status season seasonYear
+                  nextAiringEpisode{episode}
+                  studios(isMain:true){nodes{name}}
+                  duration
+                }
+              }
+            }`
+          : `query($search:String,$sort:[MediaSort],$genre:String,$format:MediaFormat,$year:Int,$status:MediaStatus,$page:Int,$perPage:Int,$minScore:Int,$epGreater:Int,$epLesser:Int){
+              Page(page:$page,perPage:$perPage){
+                pageInfo{hasNextPage}
+                media(type:ANIME,search:$search,sort:$sort,genre:$genre,format:$format,seasonYear:$year,status:$status,averageScore_greater:$minScore,episodes_greater:$epGreater,episodes_lesser:$epLesser){
+                  id title{romaji english native}
+                  coverImage{large extraLarge}
+                  bannerImage description(asHtml:false)
+                  genres episodes averageScore popularity
+                  format status season seasonYear
+                  nextAiringEpisode{episode}
+                  studios(isMain:true){nodes{name}}
+                  duration
+                }
+              }
+            }`,
+          vars);
         return {
           media: d?.Page?.media || [],
           pageInfo: d?.Page?.pageInfo || { hasNextPage: false }
         };
       }, 5);
+    },
+
+    /* ── Raw GraphQL (used by SubscriptionManager) ────────── */
+    rawQuery(query, variables = {}) {
+      return fetch('https://graphql.anilist.co', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ query, variables }),
+      }).then(r => r.json());
     },
 
     /* ── Resolve MAL ID to AniList ID ──────────────────────── */
